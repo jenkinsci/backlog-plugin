@@ -38,12 +38,7 @@ public final class BacklogProjectProperty extends JobProperty<AbstractProject<?,
         return new BacklogLinkAction(this);
     }
 	
-	@Override
-	public JobPropertyDescriptor getDescriptor() {
-		return DESCRIPTOR;
-	}
-
-	//@Extension
+	@Extension
 	public static final DescriptorImpl DESCRIPTOR = new DescriptorImpl();
 
 	public static final class DescriptorImpl extends JobPropertyDescriptor {
@@ -53,6 +48,7 @@ public final class BacklogProjectProperty extends JobProperty<AbstractProject<?,
 			load();
 		}
 
+		@Override
 		public boolean isApplicable(Class<? extends Job> jobType) {
 			return AbstractProject.class.isAssignableFrom(jobType);
 		}

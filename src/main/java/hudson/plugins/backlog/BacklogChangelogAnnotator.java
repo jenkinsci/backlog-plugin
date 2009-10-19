@@ -1,5 +1,6 @@
 package hudson.plugins.backlog;
 
+import hudson.Extension;
 import hudson.MarkupText;
 import hudson.MarkupText.SubText;
 import hudson.model.AbstractBuild;
@@ -20,6 +21,7 @@ import org.apache.commons.logging.LogFactory;
  * @author yamamoto
  * @version $Id$
  */
+@Extension
 public class BacklogChangelogAnnotator extends ChangeLogAnnotator {
 
 	private static final Log LOG = LogFactory
