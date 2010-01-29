@@ -18,17 +18,15 @@ import org.apache.commons.logging.LogFactory;
 /**
  * {@link ChangeLogAnnotator} that picks up Backlog issue KEY.
  * 
- * @author yamamoto
- * @version $Id$
+ * @author dragon3
  */
 @Extension
 public class BacklogChangelogAnnotator extends ChangeLogAnnotator {
 
-	private static final Log LOG = LogFactory
-			.getLog(BacklogChangelogAnnotator.class);
+    private static final Log LOG = LogFactory.getLog(BacklogChangelogAnnotator.class);
 
-	public static final Pattern ISSUE_KEY_PATTERN = Pattern
-			.compile("(?:(?<![/A-Z0-9a-z-])([A-Z0-9]+-[1-9][0-9]*)|\\[\\[([A-Z0-9]+-[1-9][0-9]*)\\]\\])");
+    public static final Pattern ISSUE_KEY_PATTERN = Pattern.compile(
+        "(?:(?<![/A-Z0-9a-z-])([A-Z0-9]+-[1-9][0-9]*)|\\[\\[([A-Z0-9]+-[1-9][0-9]*)\\]\\])");
 
 	@Override
 	public void annotate(AbstractBuild<?, ?> build, Entry change, MarkupText text) {

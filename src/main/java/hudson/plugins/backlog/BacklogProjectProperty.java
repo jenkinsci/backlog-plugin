@@ -12,9 +12,9 @@ import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
 
 /**
- * Property for {@link AbstractProject} that stores the associated Backlog
- * website URL.
- * 
+ * Property for {@link AbstractProject} that stores the associated Backlog website URL.
+ *
+ * @see http://d.hatena.ne.jp/cactusman/20090328/p1
  * @author dragon3
  */
 public final class BacklogProjectProperty extends JobProperty<AbstractProject<?, ?>> {
@@ -38,10 +38,8 @@ public final class BacklogProjectProperty extends JobProperty<AbstractProject<?,
         return new BacklogLinkAction(this);
     }
 	
-	@Extension
-	public static final DescriptorImpl DESCRIPTOR = new DescriptorImpl();
-
-	public static final class DescriptorImpl extends JobPropertyDescriptor {
+    @Extension
+    public static final class DescriptorImpl extends JobPropertyDescriptor {
 
 		public DescriptorImpl() {
 			super(BacklogProjectProperty.class);
@@ -64,5 +62,5 @@ public final class BacklogProjectProperty extends JobProperty<AbstractProject<?,
 				bpp = null; // not configured
 			return bpp;
 		}
-	}
+    }
 }
