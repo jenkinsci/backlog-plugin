@@ -1,6 +1,7 @@
 package hudson.plugins.backlog.api.util;
 
 import hudson.plugins.backlog.api.entity.Issue;
+import hudson.plugins.backlog.api.entity.Priority;
 import hudson.plugins.backlog.api.entity.Project;
 import hudson.plugins.backlog.api.entity.User;
 
@@ -100,11 +101,12 @@ public class ConvertUtil {
 			}
 		}
 
-		int priority = 0;
+		Priority priority = Priority.MIDDLE;
 		final Map<String, Object> priorityObj = (Map<String, Object>) map
 				.get("priority");
 		if (priorityObj != null) {
-			priority = (Integer) priorityObj.get("id");
+			priority = Priority.getPriorityFromId((Integer) priorityObj
+					.get("id"));
 		}
 		String resolution = null;
 		final Map<String, Object> resolutionObj = (Map<String, Object>) map
@@ -242,8 +244,8 @@ public class ConvertUtil {
 					Arrays.asList(issue.getMilestoneVersions()));
 		}
 
-		if (issue.getPriority() == 0) {
-			request.put("priority", issue.getPriority());
+		if (issue.getPriority() != null) {
+			request.put("priorityId", issue.getPriority().getId());
 		}
 		if (issue.getAssignerUser() != null) {
 			request.put("assignerId", issue.getAssignerUser().getId());
@@ -251,5 +253,4 @@ public class ConvertUtil {
 
 		return request;
 	}
-
 }

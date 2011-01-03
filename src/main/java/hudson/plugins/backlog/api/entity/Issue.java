@@ -13,7 +13,7 @@ public class Issue {
 			final Date dueDate, final Double estimatedHours,
 			final Double actualHours, final String issueType,
 			final String[] components, final String[] affectsVersions,
-			final String[] milestoneVersions, final int priority,
+			final String[] milestoneVersions, final Priority priority,
 			final String resolution, final String status,
 			final User assignerUser, final User createdUser,
 			final Date createdOn, final Date updatedOn) {
@@ -75,7 +75,7 @@ public class Issue {
 	private String[] milestoneVersions;
 
 	/** Priority */
-	private int priority;
+	private Priority priority;
 
 	/** Resolution */
 	private String resolution;
@@ -191,11 +191,11 @@ public class Issue {
 		this.milestoneVersions = milestoneVersions;
 	}
 
-	public int getPriority() {
+	public Priority getPriority() {
 		return priority;
 	}
 
-	public void setPriority(final int priority) {
+	public void setPriority(final Priority priority) {
 		this.priority = priority;
 	}
 
