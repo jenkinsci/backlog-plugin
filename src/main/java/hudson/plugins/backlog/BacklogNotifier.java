@@ -21,19 +21,17 @@ import java.io.IOException;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.xmlrpc.XmlRpcException;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 /**
- * Notifier that creates issue on Backlog project.
+ * Notifier that creates issue on Backlog.
  * 
  * @author ikikko
  */
 public class BacklogNotifier extends Notifier {
 
-	private static final Log LOG = LogFactory.getLog(BacklogNotifier.class);
+	public final String space;
 
 	public final String projectKey;
 
@@ -60,7 +58,9 @@ public class BacklogNotifier extends Notifier {
 	}
 
 	@DataBoundConstructor
-	public BacklogNotifier(String projectKey, String userId, String password) {
+	public BacklogNotifier(String space, String projectKey, String userId,
+			String password) {
+		this.space = space;
 		this.projectKey = projectKey;
 		this.userId = userId;
 		this.password = password;
@@ -81,9 +81,6 @@ public class BacklogNotifier extends Notifier {
 		// return true;
 		// }
 
-		// FIXME modify space
-		String space = "demo";
-
 		try {
 			BacklogApiClient client = new BacklogApiClient();
 			// TODO error handling
@@ -103,9 +100,8 @@ public class BacklogNotifier extends Notifier {
 			}
 			Issue issue = client.createIssue(project.getId(), newIssue);
 
-			// TODO i18n
 			listener.getLogger().println(
-					"Created Issue is [" + issue.getKey() + "] : "
+					"Created issue is [" + issue.getKey() + "] : "
 							+ issue.getUrl());
 		} catch (XmlRpcException e) {
 			e.printStackTrace(listener.error(e.getMessage()));
@@ -132,7 +128,7 @@ public class BacklogNotifier extends Notifier {
 
 		@Override
 		public String getDisplayName() {
-			return "Create Issue on Backlog Project";
+			return Messages.BacklogNotifier_DisplayName();
 		}
 
 	}

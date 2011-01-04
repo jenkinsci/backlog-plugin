@@ -1,8 +1,10 @@
 <div>
 <p>
-設定すると、Hudsonはビルドが失敗（もしくは不安定）になった際に、Backlogのプロジェクトに課題を登録します。成功から失敗に変わった最初の一回だけ、課題が登録されます。登録される課題の優先度は、失敗時には"高"、不安定時には"中"で登録されます。
+If configured, a issue is created on the specified Backlog project when a build becomes failed (or unstable).
+The issue is created only once the build status becomes from successful to failed.
+The priority of issue is "high" when failed / "middle" when unstable.
 </p>
 <p>
-"ユーザID"には、Backlogの該当プロジェクトに課題を登録できるユーザ（「一般ユーザ」以上の権限を持つユーザ）を選択してください。
+In the "UserId" field, input a user who can create issue to target Backlog project (who has authority more than general user).
 </p>
 </div>
