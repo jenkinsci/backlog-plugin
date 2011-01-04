@@ -19,6 +19,9 @@ public class BacklogLinkAction implements Action {
     }
 
     public String getUrlName() {
+        if (prop.projectURL != null) {
+            return prop.projectURL;
+        }
         return prop.spaceURL;
     }
 

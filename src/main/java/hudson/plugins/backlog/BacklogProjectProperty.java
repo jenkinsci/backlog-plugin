@@ -19,18 +19,28 @@ import org.kohsuke.stapler.StaplerRequest;
  */
 public final class BacklogProjectProperty extends JobProperty<AbstractProject<?, ?>> {
 
+    public final String projectURL;
 	public final String spaceURL;
 
 	@DataBoundConstructor
-	public BacklogProjectProperty(String spaceURL) {
+	public BacklogProjectProperty(final String spaceURL) {
+        String tempS = null;
+        String tempP = null;
 		// normalize
-		if (spaceURL == null || spaceURL.length() == 0)
-			spaceURL = null;
-		else {
-			if (!spaceURL.endsWith("/"))
-				spaceURL += '/';
-		}
-		this.spaceURL = spaceURL;
+		if (spaceURL != null && spaceURL.length() > 0) {
+            if (spaceURL.indexOf("/projects/") > -1) {
+                tempS = spaceURL.substring(0, spaceURL.indexOf("/projects/") + 1);
+                tempP = spaceURL.substring(0, spaceURL.endsWith("/") ? spaceURL.length() - 1 : spaceURL.length());
+            }
+            else if (!spaceURL.endsWith("/")) {
+                tempS = spaceURL + '/';
+            }
+            else {
+                tempS = spaceURL;
+            }
+        }
+		this.spaceURL = tempS;
+        this.projectURL = tempP;
 	}
 
     @Override
