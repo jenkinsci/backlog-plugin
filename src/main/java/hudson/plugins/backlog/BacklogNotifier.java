@@ -3,6 +3,7 @@ package hudson.plugins.backlog;
 import hudson.Extension;
 import hudson.Launcher;
 import hudson.model.BuildListener;
+import hudson.model.Result;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
 import hudson.plugins.backlog.api.BacklogApiClient;
@@ -34,8 +35,7 @@ public class BacklogNotifier extends Notifier {
 
 	private static final Log LOG = LogFactory.getLog(BacklogNotifier.class);
 
-	// TODO move to projectProperty
-	public final String projectId;
+	public final String projectKey;
 
 	public final String userId;
 
@@ -60,8 +60,8 @@ public class BacklogNotifier extends Notifier {
 	}
 
 	@DataBoundConstructor
-	public BacklogNotifier(String projectId, String userId, String password) {
-		this.projectId = projectId;
+	public BacklogNotifier(String projectKey, String userId, String password) {
+		this.projectKey = projectKey;
 		this.userId = userId;
 		this.password = password;
 	}
@@ -89,14 +89,18 @@ public class BacklogNotifier extends Notifier {
 			// TODO error handling
 			client.login(space, userId, password);
 
-			Project project = client.getProject(projectId);
+			Project project = client.getProject(projectKey);
 			MimeMessage message = new MessageCreator(build, listener)
 					.getMessage();
 
 			Issue newIssue = new Issue();
 			newIssue.setSummary(message.getSubject());
 			newIssue.setDescription(message.getContent().toString());
-			newIssue.setPriority(Priority.HIGH);
+			if (build.getResult() == Result.FAILURE) {
+				newIssue.setPriority(Priority.HIGH);
+			} else if (build.getResult() == Result.UNSTABLE) {
+				newIssue.setPriority(Priority.MIDDLE);
+			}
 			Issue issue = client.createIssue(project.getId(), newIssue);
 
 			// TODO i18n
