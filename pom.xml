@@ -24,6 +24,11 @@
       <name>Tomonari Nakamura</name>
     </developer>
   </developers>
+  <scm>
+  	<connection>scm:git:git://github.com/hudson/backlog-plugin.git</connection>
+  	<developerConnection>scm:git:git@github.com:hudson/backlog-plugin.git</developerConnection>
+  	<url>http://github.com/hudson/backlog-plugin</url>
+  </scm>
   <dependencies>
     <dependency>
         <groupId>org.apache.xmlrpc</groupId>
