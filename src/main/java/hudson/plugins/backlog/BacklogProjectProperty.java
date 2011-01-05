@@ -47,7 +47,7 @@ public final class BacklogProjectProperty extends JobProperty<AbstractProject<?,
     public Action getJobAction(AbstractProject<?,?> job) {
         return new BacklogLinkAction(this);
     }
-	
+
     @Extension
     public static final class DescriptorImpl extends JobPropertyDescriptor {
 
@@ -61,8 +61,9 @@ public final class BacklogProjectProperty extends JobProperty<AbstractProject<?,
 			return AbstractProject.class.isAssignableFrom(jobType);
 		}
 
+		@Override
 		public String getDisplayName() {
-			return "Associated Backlog website";
+			return Messages.BacklogProjectProperty_DisplayName();
 		}
 
 		@Override
