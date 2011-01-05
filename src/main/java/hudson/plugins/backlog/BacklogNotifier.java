@@ -17,6 +17,8 @@ import hudson.tasks.Notifier;
 import hudson.tasks.Publisher;
 
 import java.io.IOException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
@@ -41,12 +43,24 @@ public class BacklogNotifier extends Notifier {
 
 	private static class MessageCreator extends MailSender {
 
+		private static final Pattern URL_MATCH_PATTERN = Pattern.compile(
+				"(http://|https://){1}[\\w\\.\\-/:\\#\\?\\=\\&\\;\\%\\~\\+]+",
+				Pattern.CASE_INSENSITIVE);
+
 		private AbstractBuild<?, ?> build;
 		private BuildListener listener;
 
 		public MimeMessage getMessage() throws MessagingException,
-				InterruptedException {
-			return getMail(build, listener);
+				InterruptedException, IOException {
+			MimeMessage message = getMail(build, listener);
+
+			// add spaces back and forth all links (for Backlog Wiki notation)
+			Matcher matcher = URL_MATCH_PATTERN.matcher(message.getContent()
+					.toString());
+			String textWithSpaces = matcher.replaceAll(" $0 ");
+			message.setText(textWithSpaces);
+
+			return message;
 		}
 
 		public MessageCreator(AbstractBuild<?, ?> build, BuildListener listener) {
