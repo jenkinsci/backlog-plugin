@@ -50,6 +50,12 @@ public class BacklogNotifier extends Notifier {
 		private AbstractBuild<?, ?> build;
 		private BuildListener listener;
 
+		public MessageCreator(AbstractBuild<?, ?> build, BuildListener listener) {
+			super("", false, false); // dummy parameters
+			this.build = build;
+			this.listener = listener;
+		}
+
 		public MimeMessage getMessage() throws MessagingException,
 				InterruptedException, IOException {
 			MimeMessage message = getMail(build, listener);
@@ -61,12 +67,6 @@ public class BacklogNotifier extends Notifier {
 			message.setText(textWithSpaces);
 
 			return message;
-		}
-
-		public MessageCreator(AbstractBuild<?, ?> build, BuildListener listener) {
-			super("", false, false); // dummy parameters
-			this.build = build;
-			this.listener = listener;
 		}
 
 	}
@@ -84,22 +84,25 @@ public class BacklogNotifier extends Notifier {
 	public boolean perform(AbstractBuild<?, ?> build, Launcher launcher,
 			BuildListener listener) throws InterruptedException, IOException {
 
-		// FIXME 4 test
-		// if (build.getResult() == Result.SUCCESS) {
-		// return true;
-		// }
-		//
-		// // notify when build is broken at first.
-		// AbstractBuild<?, ?> pb = build.getPreviousBuild();
-		// if (pb == null || pb.getResult() != Result.SUCCESS) {
-		// return true;
-		// }
+		if (build.getResult() == Result.SUCCESS) {
+			return true;
+		}
+
+		// notify when build is broken at first.
+		AbstractBuild<?, ?> pb = build.getPreviousBuild();
+		if (pb == null || pb.getResult() != Result.SUCCESS) {
+			return true;
+		}
+
+		BacklogApiClient client = new BacklogApiClient();
+		try {
+			client.login(space, userId, password);
+		} catch (IllegalArgumentException e) {
+			listener.getLogger().println(e.getMessage());
+			return true;
+		}
 
 		try {
-			BacklogApiClient client = new BacklogApiClient();
-			// TODO error handling
-			client.login(space, userId, password);
-
 			Project project = client.getProject(projectKey);
 			MimeMessage message = new MessageCreator(build, listener)
 					.getMessage();
