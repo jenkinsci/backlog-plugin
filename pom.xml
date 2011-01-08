@@ -10,7 +10,7 @@
 
   <artifactId>backlog</artifactId>
   <packaging>hpi</packaging>
-  <version>1.2-SNAPSHOT</version>
+  <version>1.2</version>
   <name>Hudson Backlog plugin</name>
   <description>Integrates Hudson to Backlog</description>
   <url>http://wiki.hudson-ci.org/display/HUDSON/Backlog+Plugin</url>
