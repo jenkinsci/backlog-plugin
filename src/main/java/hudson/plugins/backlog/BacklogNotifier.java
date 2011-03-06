@@ -91,6 +91,9 @@ public class BacklogNotifier extends Notifier {
 		// notify when build is broken at first.
 		AbstractBuild<?, ?> pb = build.getPreviousBuild();
 		if (pb == null || pb.getResult() != Result.SUCCESS) {
+			listener.getLogger()
+					.println(
+							"Backlog issue is created only at first, so creating issue is skipped.");
 			return true;
 		}
 
