@@ -43,9 +43,7 @@ public class BacklogApiClient {
 		} catch (final MalformedURLException e) {
 			throw new RuntimeException(e);
 		} catch (final XmlRpcException e) {
-			throw new IllegalArgumentException(
-					"Login Failed to Backlog : Space=" + space + ", UserId="
-							+ userName + ", Password=" + password);
+			throw new IllegalArgumentException("Failed login to Backlog");
 		}
 	}
 
