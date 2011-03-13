@@ -3,7 +3,6 @@ package hudson.plugins.backlog;
 import hudson.Extension;
 import hudson.Functions;
 import hudson.Launcher;
-import hudson.Util;
 import hudson.model.BuildListener;
 import hudson.model.Result;
 import hudson.model.AbstractBuild;
@@ -157,9 +156,8 @@ public class BacklogNotifier extends Notifier {
 			if (StringUtils.isEmpty(space) || space.matches("[a-z0-9-]{3,10}")) {
 				return FormValidation.ok();
 			} else {
-				// TODO i18n
-				return FormValidation
-						.error("'Space' must be characters in alpha/numeric/hyphen, between 3 and 10.");
+				return FormValidation.error(Messages
+						.BacklogNotifier_Space_Error());
 			}
 		}
 
@@ -169,8 +167,8 @@ public class BacklogNotifier extends Notifier {
 					|| projectKey.matches("[A-Z0-9]+")) {
 				return FormValidation.ok();
 			} else {
-				return FormValidation
-						.error("'Project' must be upper characters in alpha/numeric.");
+				return FormValidation.error(Messages
+						.BacklogNotifier_ProjectKey_Error());
 			}
 		}
 
@@ -178,8 +176,8 @@ public class BacklogNotifier extends Notifier {
 			if (StringUtils.isEmpty(userId) || userId.matches("[A-Za-z0-9-_]+")) {
 				return FormValidation.ok();
 			} else {
-				return FormValidation
-						.error("'UserId' must be characters in alpha/numeric/hyphen/underscore.");
+				return FormValidation.error(Messages
+						.BacklogNotifier_UserId_Error());
 			}
 		}
 
@@ -191,8 +189,8 @@ public class BacklogNotifier extends Notifier {
 			if (StringUtils.isEmpty(space) || StringUtils.isEmpty(projectKey)
 					|| StringUtils.isEmpty(userId)
 					|| StringUtils.isEmpty(password)) {
-				return FormValidation
-						.warning("Issue is not created because all field is not filled");
+				return FormValidation.warning(Messages
+						.BacklogNotifier_CreateTestIssue_Skip());
 			}
 
 			try {
@@ -208,16 +206,15 @@ public class BacklogNotifier extends Notifier {
 				Issue issue = client.createIssue(project.getId(), newIssue);
 
 				return FormValidation
-						.okWithMarkup("Issue was successfully created" + " : "
-								+ "<a href=\"" + issue.getUrl() + "\">"
-								+ issue.getUrl() + "</a>");
+						.okWithMarkup(Messages
+								.BacklogNotifier_CreateTestIssue_Success(issue
+										.getUrl()));
 			} catch (Exception e) {
-				return FormValidation.errorWithMarkup("<p>"
-						+ "Failed to created issue" + "</p>" + "<pre>"
-						+ Util.escape(Functions.printThrowable(e)) + "</pre>");
+				return FormValidation.errorWithMarkup(Messages
+						.BacklogNotifier_CreateTestIssue_Failure(Functions
+								.printThrowable(e)));
 			}
 		}
-
 	}
 
 }
