@@ -103,15 +103,10 @@ public class BacklogNotifier extends Notifier {
 			return true;
 		}
 
-		BacklogApiClient client = new BacklogApiClient();
 		try {
+			BacklogApiClient client = new BacklogApiClient();
 			client.login(space, userId, password);
-		} catch (IllegalArgumentException e) {
-			listener.getLogger().println(e.getMessage());
-			return true;
-		}
 
-		try {
 			Project project = client.getProject(projectKey);
 			MimeMessage message = new MessageCreator(build, listener)
 					.getMessage();
@@ -129,6 +124,7 @@ public class BacklogNotifier extends Notifier {
 			listener.getLogger().println(
 					"Created issue is [" + issue.getKey() + "] : "
 							+ issue.getUrl());
+
 		} catch (XmlRpcException e) {
 			e.printStackTrace(listener.error(e.getMessage()));
 		} catch (MessagingException e) {
