@@ -1,11 +1,14 @@
 package hudson.plugins.backlog;
 
 import hudson.Extension;
+import hudson.Functions;
 import hudson.Launcher;
+import hudson.Util;
 import hudson.model.BuildListener;
 import hudson.model.Result;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
+import hudson.model.Hudson;
 import hudson.plugins.backlog.api.BacklogApiClient;
 import hudson.plugins.backlog.api.entity.Issue;
 import hudson.plugins.backlog.api.entity.Priority;
@@ -15,6 +18,7 @@ import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.MailSender;
 import hudson.tasks.Notifier;
 import hudson.tasks.Publisher;
+import hudson.util.FormValidation;
 
 import java.io.IOException;
 import java.util.regex.Matcher;
@@ -23,8 +27,10 @@ import java.util.regex.Pattern;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.xmlrpc.XmlRpcException;
 import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.QueryParameter;
 
 /**
  * Notifier that creates issue on Backlog.
@@ -149,6 +155,71 @@ public class BacklogNotifier extends Notifier {
 		@Override
 		public String getDisplayName() {
 			return Messages.BacklogNotifier_DisplayName();
+		}
+
+		public FormValidation doCheckSpace(@QueryParameter String space) {
+			if (StringUtils.isEmpty(space) || space.matches("[a-z0-9-]{3,10}")) {
+				return FormValidation.ok();
+			} else {
+				// TODO i18n
+				return FormValidation
+						.error("'Space' must be characters in alpha/numeric/hyphen, between 3 and 10.");
+			}
+		}
+
+		public FormValidation doCheckProjectKey(
+				@QueryParameter String projectKey) {
+			if (StringUtils.isEmpty(projectKey)
+					|| projectKey.matches("[A-Z0-9]+")) {
+				return FormValidation.ok();
+			} else {
+				return FormValidation
+						.error("'Project' must be upper characters in alpha/numeric.");
+			}
+		}
+
+		public FormValidation doCheckUserId(@QueryParameter String userId) {
+			if (StringUtils.isEmpty(userId) || userId.matches("[A-Za-z0-9-_]+")) {
+				return FormValidation.ok();
+			} else {
+				return FormValidation
+						.error("'UserId' must be characters in alpha/numeric/hyphen/underscore.");
+			}
+		}
+
+		public FormValidation doCreateTestIssue(@QueryParameter String space,
+				@QueryParameter String projectKey,
+				@QueryParameter String userId, @QueryParameter String password) {
+
+			// not created if all field is not filled
+			if (StringUtils.isEmpty(space) || StringUtils.isEmpty(projectKey)
+					|| StringUtils.isEmpty(userId)
+					|| StringUtils.isEmpty(password)) {
+				return FormValidation
+						.warning("Issue is not created because all field is not filled");
+			}
+
+			try {
+				BacklogApiClient client = new BacklogApiClient();
+				client.login(space, userId, password);
+
+				Project project = client.getProject(projectKey);
+				Issue newIssue = new Issue();
+				newIssue.setSummary("Test issue");
+				newIssue.setDescription("This is test issue created by "
+						+ Hudson.getInstance().getDisplayName());
+
+				Issue issue = client.createIssue(project.getId(), newIssue);
+
+				return FormValidation
+						.okWithMarkup("Issue was successfully created" + " : "
+								+ "<a href=\"" + issue.getUrl() + "\">"
+								+ issue.getUrl() + "</a>");
+			} catch (Exception e) {
+				return FormValidation.errorWithMarkup("<p>"
+						+ "Failed to created issue" + "</p>" + "<pre>"
+						+ Util.escape(Functions.printThrowable(e)) + "</pre>");
+			}
 		}
 
 	}

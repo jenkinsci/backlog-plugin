@@ -43,7 +43,7 @@ public class BacklogApiClient {
 		} catch (final MalformedURLException e) {
 			throw new RuntimeException(e);
 		} catch (final XmlRpcException e) {
-			throw new IllegalArgumentException("Failed login to Backlog");
+			throw new IllegalArgumentException("Failed login to Backlog", e);
 		}
 	}
 

@@ -11,4 +11,6 @@
   <f:entry title="${%Password}" field="password">
     <f:password />
   </f:entry>
+
+  <f:validateButton method="createTestIssue" title="${%Create Test Issue}" with="space,projectKey,userId,password" />
 </j:jelly>
