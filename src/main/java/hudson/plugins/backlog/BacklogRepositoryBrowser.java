@@ -3,6 +3,7 @@ package hudson.plugins.backlog;
 import hudson.Extension;
 import hudson.model.AbstractProject;
 import hudson.model.Descriptor;
+import hudson.scm.EditType;
 import hudson.scm.RepositoryBrowser;
 import hudson.scm.SubversionRepositoryBrowser;
 import hudson.scm.SubversionChangeLogSet.LogEntry;
@@ -14,6 +15,11 @@ import java.net.URLEncoder;
 
 import org.kohsuke.stapler.DataBoundConstructor;
 
+/**
+ * {@link SubversionRepositoryBrowser} that produces Backlog links.
+ * 
+ * @author ikikko
+ */
 public class BacklogRepositoryBrowser extends SubversionRepositoryBrowser {
 
 	@DataBoundConstructor
@@ -44,13 +50,14 @@ public class BacklogRepositoryBrowser extends SubversionRepositoryBrowser {
 
 	@Override
 	public URL getDiffLink(Path path) throws IOException {
+		if (path.getEditType() != EditType.EDIT) {
+			return null; // no diff if this is not an edit change
+		}
+
 		BacklogProjectProperty property = getProjectProperty(path.getLogEntry());
 		if (property.spaceURL == null || property.projectURL == null) {
 			return null;
 		}
-
-		// TODO プロパティから引っ張ってくる
-		String project = "PRIVATE";
 
 		int revision = path.getLogEntry().getRevision();
 
@@ -61,19 +68,21 @@ public class BacklogRepositoryBrowser extends SubversionRepositoryBrowser {
 		String encodedPath = URLEncoder.encode(filePath, "UTF-8");
 
 		return new URL(property.spaceURL + "ViewRepositoryFileDiff.action"
-				+ "?projectKey=" + project + "&path=" + encodedPath
-				+ "&fromRevision=" + "-1" + "&toRevision=" + revision);
+				+ "?projectKey=" + property.getProject() + "&path="
+				+ encodedPath + "&fromRevision=" + "-1" + "&toRevision="
+				+ revision);
 	}
 
 	@Override
 	public URL getFileLink(Path path) throws IOException {
+		if (path.getEditType() == EditType.DELETE) {
+			return null;
+		}
+
 		BacklogProjectProperty property = getProjectProperty(path.getLogEntry());
 		if (property.spaceURL == null || property.projectURL == null) {
 			return null;
 		}
-
-		// TODO プロパティから引っ張ってくる
-		String project = "PRIVATE";
 
 		int revision = path.getLogEntry().getRevision();
 
@@ -84,8 +93,8 @@ public class BacklogRepositoryBrowser extends SubversionRepositoryBrowser {
 		String encodedPath = URLEncoder.encode(filePath, "UTF-8");
 
 		return new URL(property.spaceURL + "ViewRepositoryFile.action"
-				+ "?projectKey=" + project + "&r=" + revision + "&path="
-				+ encodedPath);
+				+ "?projectKey=" + property.getProject() + "&r=" + revision
+				+ "&path=" + encodedPath);
 	}
 
 	@Override
@@ -95,10 +104,7 @@ public class BacklogRepositoryBrowser extends SubversionRepositoryBrowser {
 			return null;
 		}
 
-		// TODO プロパティから引っ張ってくる
-		String project = "PRIVATE";
-
-		return new URL(property.spaceURL + "rev/" + project + "/"
+		return new URL(property.spaceURL + "rev/" + property.getProject() + "/"
 				+ changeSet.getRevision());
 	}
 
