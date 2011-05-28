@@ -10,6 +10,7 @@ import hudson.scm.SubversionChangeLogSet.Path;
 
 import java.io.IOException;
 import java.net.URL;
+import java.net.URLEncoder;
 
 import org.kohsuke.stapler.DataBoundConstructor;
 
@@ -49,8 +50,25 @@ public class BacklogRepositoryBrowser extends SubversionRepositoryBrowser {
 
 	@Override
 	public URL getFileLink(Path path) throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		BacklogProjectProperty property = getProjectProperty(path.getLogEntry());
+		if (property.spaceURL == null || property.projectURL == null) {
+			return null;
+		}
+
+		// TODO プロパティから引っ張ってくる
+		String project = "PRIVATE";
+
+		int revision = path.getLogEntry().getRevision();
+
+		String filePath = path.getPath();
+		if (filePath.startsWith("/")) {
+			filePath = filePath.substring(1);
+		}
+		String encodedPath = URLEncoder.encode(filePath, "UTF-8");
+
+		return new URL(property.spaceURL + "ViewRepositoryFile.action"
+				+ "?projectKey=" + project + "&r=" + revision + "&path="
+				+ encodedPath);
 	}
 
 	@Override
