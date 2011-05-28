@@ -44,8 +44,25 @@ public class BacklogRepositoryBrowser extends SubversionRepositoryBrowser {
 
 	@Override
 	public URL getDiffLink(Path path) throws IOException {
-		// TODO Auto-generated method stub
-		return null;
+		BacklogProjectProperty property = getProjectProperty(path.getLogEntry());
+		if (property.spaceURL == null || property.projectURL == null) {
+			return null;
+		}
+
+		// TODO プロパティから引っ張ってくる
+		String project = "PRIVATE";
+
+		int revision = path.getLogEntry().getRevision();
+
+		String filePath = path.getPath();
+		if (filePath.startsWith("/")) {
+			filePath = filePath.substring(1);
+		}
+		String encodedPath = URLEncoder.encode(filePath, "UTF-8");
+
+		return new URL(property.spaceURL + "ViewRepositoryFileDiff.action"
+				+ "?projectKey=" + project + "&path=" + encodedPath
+				+ "&fromRevision=" + "-1" + "&toRevision=" + revision);
 	}
 
 	@Override
