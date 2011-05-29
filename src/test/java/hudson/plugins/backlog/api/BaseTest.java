@@ -7,7 +7,7 @@ import org.junit.BeforeClass;
 
 public abstract class BaseTest {
 
-	protected static String BACKLOG_SPACE;
+	protected static String BACKLOG_SPACE_URL;
 	protected static String BACKLOG_USERNAME;
 	protected static String BACKLOG_PASSWORD;
 	protected static int BACKLOG_PROJECT_ID;
@@ -33,7 +33,7 @@ public abstract class BaseTest {
 			properties.load(propertyFile);
 		}
 
-		BACKLOG_SPACE = properties.getProperty("SPACE");
+		BACKLOG_SPACE_URL = properties.getProperty("SPACE_URL");
 		BACKLOG_USERNAME = properties.getProperty("USERNAME");
 		BACKLOG_PASSWORD = properties.getProperty("PASSWORD");
 		BACKLOG_PROJECT_ID = Integer.valueOf(properties

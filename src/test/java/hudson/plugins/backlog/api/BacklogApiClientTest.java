@@ -1,7 +1,8 @@
 package hudson.plugins.backlog.api;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.junit.Assert.assertThat;
 import hudson.plugins.backlog.api.entity.Issue;
 import hudson.plugins.backlog.api.entity.Project;
 import hudson.plugins.backlog.api.entity.User;
@@ -17,12 +18,12 @@ public class BacklogApiClientTest extends BaseTest {
 	@Before
 	public void setUp() throws Exception {
 		client = new BacklogApiClient();
-		client.login(BACKLOG_SPACE, BACKLOG_USERNAME, BACKLOG_PASSWORD);
+		client.login(BACKLOG_SPACE_URL, BACKLOG_USERNAME, BACKLOG_PASSWORD);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void loginFail() throws Exception {
-		client.login("fail", "fail", "fail");
+		client.login("https://fail.backlog.jp/", "fail", "fail");
 	}
 
 	@Test

@@ -27,9 +27,9 @@ public class BacklogApiClient {
 		client = new XmlRpcClient();
 	}
 
-	public void login(final String space, final String userName,
+	public void login(final String spaceURL, final String userName,
 			final String password) {
-		final String url = "https://" + space + ".backlog.jp/XML-RPC";
+		final String url = spaceURL + "XML-RPC";
 
 		try {
 			final XmlRpcClientConfigImpl config = new XmlRpcClientConfigImpl();
