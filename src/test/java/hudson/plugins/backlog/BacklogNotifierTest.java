@@ -17,56 +17,6 @@ public class BacklogNotifierTest {
 	}
 
 	@Test
-	public void doCheckSpace_ok() throws Exception {
-		FormValidation actual;
-
-		actual = desc.doCheckSpace("");
-		assertValidationOk(actual);
-
-		actual = desc.doCheckSpace("space-1");
-		assertValidationOk(actual);
-	}
-
-	@Test
-	public void doCheckSpace_error() throws Exception {
-		FormValidation actual;
-
-		actual = desc.doCheckSpace("12");
-		assertValidationError(actual);
-
-		actual = desc.doCheckSpace("12345678901");
-		assertValidationError(actual);
-
-		actual = desc.doCheckSpace("http://space.backlog.jp/");
-		assertValidationError(actual);
-	}
-
-	@Test
-	public void doCheckProjectKey_ok() throws Exception {
-		FormValidation actual;
-
-		actual = desc.doCheckProjectKey("");
-		assertValidationOk(actual);
-
-		actual = desc.doCheckProjectKey("PROJECT1");
-		assertValidationOk(actual);
-	}
-
-	@Test
-	public void doCheckProjectKey_error() throws Exception {
-		FormValidation actual;
-
-		actual = desc.doCheckProjectKey("project1");
-		assertValidationError(actual);
-
-		actual = desc.doCheckSpace("PROJECT-1");
-		assertValidationError(actual);
-
-		actual = desc.doCheckSpace("https://space.backlog.jp/projects/PROJECT");
-		assertValidationError(actual);
-	}
-
-	@Test
 	public void doCheckUserId_ok() throws Exception {
 		FormValidation actual;
 
@@ -85,31 +35,6 @@ public class BacklogNotifierTest {
 		assertValidationError(actual);
 
 		actual = desc.doCheckUserId("user@id");
-		assertValidationError(actual);
-	}
-
-	@Test
-	public void doCreateTestIssue_skip() throws Exception {
-		FormValidation actual;
-
-		actual = desc.doCreateTestIssue("space", "projectKey", "userId", "");
-		assertValidationWarning(actual);
-
-		actual = desc.doCreateTestIssue("space", "projectKey", "", "password");
-		assertValidationWarning(actual);
-
-		actual = desc.doCreateTestIssue("space", "", "userId", "password");
-		assertValidationWarning(actual);
-
-		actual = desc.doCreateTestIssue("", "projectKey", "userId", "password");
-		assertValidationWarning(actual);
-	}
-
-	@Test
-	public void doCreateTestIssue_error() throws Exception {
-		FormValidation actual;
-
-		actual = desc.doCreateTestIssue("fail", "fail", "fail", "fail");
 		assertValidationError(actual);
 	}
 

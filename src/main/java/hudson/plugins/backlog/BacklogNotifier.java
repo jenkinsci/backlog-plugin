@@ -1,13 +1,11 @@
 package hudson.plugins.backlog;
 
 import hudson.Extension;
-import hudson.Functions;
 import hudson.Launcher;
 import hudson.model.BuildListener;
 import hudson.model.Result;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
-import hudson.model.Hudson;
 import hudson.plugins.backlog.api.BacklogApiClient;
 import hudson.plugins.backlog.api.entity.Issue;
 import hudson.plugins.backlog.api.entity.Priority;
@@ -37,10 +35,6 @@ import org.kohsuke.stapler.QueryParameter;
  * @author ikikko
  */
 public class BacklogNotifier extends Notifier {
-
-	public final String space;
-
-	public final String projectKey;
 
 	public final String userId;
 
@@ -77,10 +71,7 @@ public class BacklogNotifier extends Notifier {
 	}
 
 	@DataBoundConstructor
-	public BacklogNotifier(String space, String projectKey, String userId,
-			String password) {
-		this.space = space;
-		this.projectKey = projectKey;
+	public BacklogNotifier(String userId, String password) {
 		this.userId = userId;
 		this.password = password;
 	}
@@ -102,11 +93,14 @@ public class BacklogNotifier extends Notifier {
 			return true;
 		}
 
+		BacklogProjectProperty bpp = build.getProject().getProperty(
+				BacklogProjectProperty.class);
+
 		try {
 			BacklogApiClient client = new BacklogApiClient();
-			client.login(space, userId, password);
+			client.login(bpp.spaceURL, userId, password);
 
-			Project project = client.getProject(projectKey);
+			Project project = client.getProject(bpp.getProject());
 			MimeMessage message = new MessageCreator(build, listener)
 					.getMessage();
 
@@ -152,26 +146,6 @@ public class BacklogNotifier extends Notifier {
 			return Messages.BacklogNotifier_DisplayName();
 		}
 
-		public FormValidation doCheckSpace(@QueryParameter String space) {
-			if (StringUtils.isEmpty(space) || space.matches("[a-z0-9-]{3,10}")) {
-				return FormValidation.ok();
-			} else {
-				return FormValidation.error(Messages
-						.BacklogNotifier_Space_Error());
-			}
-		}
-
-		public FormValidation doCheckProjectKey(
-				@QueryParameter String projectKey) {
-			if (StringUtils.isEmpty(projectKey)
-					|| projectKey.matches("[A-Z0-9]+")) {
-				return FormValidation.ok();
-			} else {
-				return FormValidation.error(Messages
-						.BacklogNotifier_ProjectKey_Error());
-			}
-		}
-
 		public FormValidation doCheckUserId(@QueryParameter String userId) {
 			if (StringUtils.isEmpty(userId) || userId.matches("[A-Za-z0-9-_]+")) {
 				return FormValidation.ok();
@@ -181,40 +155,6 @@ public class BacklogNotifier extends Notifier {
 			}
 		}
 
-		public FormValidation doCreateTestIssue(@QueryParameter String space,
-				@QueryParameter String projectKey,
-				@QueryParameter String userId, @QueryParameter String password) {
-
-			// not created if all field is not filled
-			if (StringUtils.isEmpty(space) || StringUtils.isEmpty(projectKey)
-					|| StringUtils.isEmpty(userId)
-					|| StringUtils.isEmpty(password)) {
-				return FormValidation.warning(Messages
-						.BacklogNotifier_CreateTestIssue_Skip());
-			}
-
-			try {
-				BacklogApiClient client = new BacklogApiClient();
-				client.login(space, userId, password);
-
-				Project project = client.getProject(projectKey);
-				Issue newIssue = new Issue();
-				newIssue.setSummary("Test issue");
-				newIssue.setDescription("This is test issue created by "
-						+ Hudson.getInstance().getDisplayName());
-
-				Issue issue = client.createIssue(project.getId(), newIssue);
-
-				return FormValidation
-						.okWithMarkup(Messages
-								.BacklogNotifier_CreateTestIssue_Success(issue
-										.getUrl()));
-			} catch (Exception e) {
-				return FormValidation.errorWithMarkup(Messages
-						.BacklogNotifier_CreateTestIssue_Failure(Functions
-								.printThrowable(e)));
-			}
-		}
 	}
 
 }

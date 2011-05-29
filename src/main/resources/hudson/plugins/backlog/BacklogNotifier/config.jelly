@@ -1,16 +1,8 @@
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
-  <f:entry title="${%Space}" field="space">
-    <f:textbox />
-  </f:entry>
-  <f:entry title="${%Project}" field="projectKey">
-    <f:textbox />
-  </f:entry>
   <f:entry title="${%UserId}" field="userId">
     <f:textbox />
   </f:entry>
   <f:entry title="${%Password}" field="password">
     <f:password />
   </f:entry>
-
-  <f:validateButton method="createTestIssue" title="${%Create Test Issue}" with="space,projectKey,userId,password" />
 </j:jelly>
