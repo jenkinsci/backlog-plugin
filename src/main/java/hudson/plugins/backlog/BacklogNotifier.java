@@ -90,9 +90,31 @@ public class BacklogNotifier extends Notifier {
 		BacklogProjectProperty bpp = build.getProject().getProperty(
 				BacklogProjectProperty.class);
 
+		// check project property parameter
+		if (StringUtils.isEmpty(bpp.getSpaceURL())) {
+			listener.getLogger().println(
+					"'Backlog URL' is not set, so creating issue is skipped.");
+			return true;
+		}
+		if (StringUtils.isEmpty(bpp.getProject())) {
+			listener.getLogger()
+					.println(
+							"'project' is not included in Backlog URL, so creating issue is skipped.");
+			return true;
+		}
+		if (StringUtils.isEmpty(bpp.userId)) {
+			listener.getLogger().println(
+					"'userId' is not set, so creating issue is skipped.");
+			return true;
+		}
+		if (StringUtils.isEmpty(bpp.password)) {
+			listener.getLogger().println(
+					"'password' is not set, so creating issue is skipped.");
+			return true;
+		}
+
 		try {
 			BacklogApiClient client = new BacklogApiClient();
-			// TODO check bpp value
 			client.login(bpp.getSpaceURL(), bpp.userId, bpp.password);
 
 			Project project = client.getProject(bpp.getProject());
