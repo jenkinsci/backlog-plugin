@@ -55,7 +55,7 @@ public class BacklogRepositoryBrowser extends SubversionRepositoryBrowser {
 		}
 
 		BacklogProjectProperty property = getProjectProperty(path.getLogEntry());
-		if (property.getSpaceURL2() == null) {
+		if (property.getSpaceURL() == null) {
 			return null;
 		}
 
@@ -67,10 +67,10 @@ public class BacklogRepositoryBrowser extends SubversionRepositoryBrowser {
 		}
 		String encodedPath = URLEncoder.encode(filePath, "UTF-8");
 
-		return new URL(property.getSpaceURL2()
-				+ "/ViewRepositoryFileDiff.action" + "?projectKey="
-				+ property.getProject() + "&path=" + encodedPath
-				+ "&fromRevision=" + "-1" + "&toRevision=" + revision);
+		return new URL(property.getSpaceURL() + "ViewRepositoryFileDiff.action"
+				+ "?projectKey=" + property.getProject() + "&path="
+				+ encodedPath + "&fromRevision=" + "-1" + "&toRevision="
+				+ revision);
 	}
 
 	@Override
@@ -80,7 +80,7 @@ public class BacklogRepositoryBrowser extends SubversionRepositoryBrowser {
 		}
 
 		BacklogProjectProperty property = getProjectProperty(path.getLogEntry());
-		if (property.getSpaceURL2() == null) {
+		if (property.getSpaceURL() == null) {
 			return null;
 		}
 
@@ -92,7 +92,7 @@ public class BacklogRepositoryBrowser extends SubversionRepositoryBrowser {
 		}
 		String encodedPath = URLEncoder.encode(filePath, "UTF-8");
 
-		return new URL(property.getSpaceURL2() + "/ViewRepositoryFile.action"
+		return new URL(property.getSpaceURL() + "ViewRepositoryFile.action"
 				+ "?projectKey=" + property.getProject() + "&r=" + revision
 				+ "&path=" + encodedPath);
 	}
@@ -100,11 +100,11 @@ public class BacklogRepositoryBrowser extends SubversionRepositoryBrowser {
 	@Override
 	public URL getChangeSetLink(LogEntry changeSet) throws IOException {
 		BacklogProjectProperty property = getProjectProperty(changeSet);
-		if (property.getSpaceURL2() == null) {
+		if (property.getSpaceURL() == null) {
 			return null;
 		}
 
-		return new URL(property.getSpaceURL2() + "/rev/" + property.getProject()
+		return new URL(property.getSpaceURL() + "rev/" + property.getProject()
 				+ "/" + changeSet.getRevision());
 	}
 

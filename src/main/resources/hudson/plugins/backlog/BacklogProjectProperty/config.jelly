@@ -2,8 +2,8 @@
 
   <f:entry title="Backlog" name="backlog">
   
-    <f:entry title="Backlog URL" help="/plugin/backlog/help-projectConfig.html">
-      <f:textbox name="backlog.spaceURL" value="${instance.spaceURL}" />
+    <f:entry title="Backlog URL" field="url" help="/plugin/backlog/help-projectConfig.html">
+      <f:textbox />
     </f:entry>
     
     <f:entry title="${%UserId}" field="userId">

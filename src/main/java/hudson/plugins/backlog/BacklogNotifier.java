@@ -93,7 +93,7 @@ public class BacklogNotifier extends Notifier {
 		try {
 			BacklogApiClient client = new BacklogApiClient();
 			// TODO check bpp value
-			client.login(bpp.spaceURL, bpp.userId, bpp.password);
+			client.login(bpp.getSpaceURL(), bpp.userId, bpp.password);
 
 			Project project = client.getProject(bpp.getProject());
 			MimeMessage message = new MessageCreator(build, listener)

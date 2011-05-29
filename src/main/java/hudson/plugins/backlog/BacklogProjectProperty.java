@@ -22,57 +22,55 @@ import org.kohsuke.stapler.StaplerRequest;
 public final class BacklogProjectProperty extends
 		JobProperty<AbstractProject<?, ?>> {
 
-	public final String spaceURL;
+	public final String url;
 	public final String userId;
 	public final String password;
 
 	// TODO add help for userId/password
 
 	@DataBoundConstructor
-	public BacklogProjectProperty(final String spaceURL, final String userId,
+	public BacklogProjectProperty(final String url, final String userId,
 			final String password) {
 
 		// normalize
-		if (StringUtils.isNotEmpty(spaceURL)) {
-			if (spaceURL.contains("/projects/")) {
-				this.spaceURL = spaceURL;
-			} else if (spaceURL.endsWith("/")) {
-				this.spaceURL = spaceURL;
+		if (StringUtils.isNotEmpty(url)) {
+			if (url.contains("/projects/")) {
+				this.url = url;
+			} else if (url.endsWith("/")) {
+				this.url = url;
 			} else {
-				this.spaceURL = spaceURL + '/';
+				this.url = url + '/';
 			}
 		} else {
-			this.spaceURL = null;
+			this.url = null;
 		}
 
 		this.userId = userId;
 		this.password = password;
 	}
 
-	public String getSpaceURL2() {
-		// TODO rename spaceURL
-		if (spaceURL == null) {
+	public String getSpaceURL() {
+		if (url == null) {
 			return null;
 		}
 
-		if (spaceURL.contains("/projects/")) {
-			return spaceURL.substring(0, spaceURL.indexOf("/projects/") + 1);
+		if (url.contains("/projects/")) {
+			return url.substring(0, url.indexOf("/projects/") + 1);
 		} else {
-			return spaceURL;
+			return url;
 		}
 
 	}
 
 	public String getProject() {
-		if (spaceURL == null) {
+		if (url == null) {
 			return null;
 		}
-		if (!spaceURL.contains("/projects/")) {
+		if (!url.contains("/projects/")) {
 			return null;
 		}
 
-		return spaceURL.substring(spaceURL.indexOf("/projects/")
-				+ "/projects/".length());
+		return url.substring(url.indexOf("/projects/") + "/projects/".length());
 	}
 
 	@Override
@@ -104,8 +102,6 @@ public final class BacklogProjectProperty extends
 
 			BacklogProjectProperty bpp = req.bindJSON(
 					BacklogProjectProperty.class, formData);
-			if (bpp.spaceURL == null) // TODO need?
-				bpp = null; // not configured
 			return bpp;
 		}
 	}

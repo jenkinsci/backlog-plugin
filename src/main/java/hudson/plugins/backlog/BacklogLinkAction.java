@@ -11,15 +11,24 @@ public class BacklogLinkAction implements Action {
 	}
 
 	public String getIconFileName() {
+		if (prop.url == null) {
+			return null;
+		}
 		return "/plugin/backlog/icon.png";
 	}
 
 	public String getDisplayName() {
+		if (prop.url == null) {
+			return null;
+		}
 		return "Backlog";
 	}
 
 	public String getUrlName() {
-		return prop.spaceURL;
+		if (prop.url == null) {
+			return null;
+		}
+		return prop.url;
 	}
 
 }
