@@ -101,7 +101,8 @@ public final class BacklogProjectProperty extends
 				JSONObject formData) throws FormException {
 
 			BacklogProjectProperty bpp = req.bindJSON(
-					BacklogProjectProperty.class, formData);
+					BacklogProjectProperty.class,
+					formData.getJSONObject("backlog"));
 			return bpp;
 		}
 	}

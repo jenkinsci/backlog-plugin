@@ -1,6 +1,7 @@
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
 
-  <f:entry title="Backlog" name="backlog">
+  <f:optionalBlock title="Backlog" name="backlog"
+    checked="${instance.url!=null || instanse.userId!=null || instance.password!=null}">
   
     <f:entry title="Backlog URL" field="url" help="/plugin/backlog/help-projectConfig.html">
       <f:textbox />
@@ -14,6 +15,6 @@
       <f:password />
     </f:entry>
     
-  </f:entry>
+  </f:optionalBlock>
 
 </j:jelly>
