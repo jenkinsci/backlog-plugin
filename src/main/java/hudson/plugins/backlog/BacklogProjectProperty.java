@@ -8,6 +8,7 @@ import hudson.model.AbstractProject;
 import hudson.model.Job;
 import net.sf.json.JSONObject;
 
+import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
 
@@ -21,44 +22,56 @@ import org.kohsuke.stapler.StaplerRequest;
 public final class BacklogProjectProperty extends
 		JobProperty<AbstractProject<?, ?>> {
 
-	public final String projectURL;
 	public final String spaceURL;
 	public final String userId;
 	public final String password;
 
+	// TODO add help for userId/password
+
 	@DataBoundConstructor
 	public BacklogProjectProperty(final String spaceURL, final String userId,
 			final String password) {
-		String tempS = null;
-		String tempP = null;
 
 		// normalize
-		if (spaceURL != null && spaceURL.length() > 0) {
-			if (spaceURL.indexOf("/projects/") > -1) {
-				tempS = spaceURL.substring(0,
-						spaceURL.indexOf("/projects/") + 1);
-				tempP = spaceURL.substring(0,
-						spaceURL.endsWith("/") ? spaceURL.length() - 1
-								: spaceURL.length());
-			} else if (!spaceURL.endsWith("/")) {
-				tempS = spaceURL + '/';
+		if (StringUtils.isNotEmpty(spaceURL)) {
+			if (spaceURL.contains("/projects/")) {
+				this.spaceURL = spaceURL;
+			} else if (spaceURL.endsWith("/")) {
+				this.spaceURL = spaceURL;
 			} else {
-				tempS = spaceURL;
+				this.spaceURL = spaceURL + '/';
 			}
+		} else {
+			this.spaceURL = null;
 		}
-		this.spaceURL = tempS;
-		this.projectURL = tempP;
 
 		this.userId = userId;
 		this.password = password;
 	}
 
-	public String getProject() {
-		if (projectURL == null) {
+	public String getSpaceURL2() {
+		// TODO rename spaceURL
+		if (spaceURL == null) {
 			return null;
 		}
 
-		return projectURL.substring(projectURL.indexOf("/projects/")
+		if (spaceURL.contains("/projects/")) {
+			return spaceURL.substring(0, spaceURL.indexOf("/projects/") + 1);
+		} else {
+			return spaceURL;
+		}
+
+	}
+
+	public String getProject() {
+		if (spaceURL == null) {
+			return null;
+		}
+		if (!spaceURL.contains("/projects/")) {
+			return null;
+		}
+
+		return spaceURL.substring(spaceURL.indexOf("/projects/")
 				+ "/projects/".length());
 	}
 

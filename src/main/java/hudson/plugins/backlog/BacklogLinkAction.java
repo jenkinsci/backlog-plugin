@@ -6,23 +6,20 @@ public class BacklogLinkAction implements Action {
 
 	private final BacklogProjectProperty prop;
 
-    public BacklogLinkAction(BacklogProjectProperty prop) {
-        this.prop = prop;
-    }
+	public BacklogLinkAction(BacklogProjectProperty prop) {
+		this.prop = prop;
+	}
 
-    public String getIconFileName() {
-        return "/plugin/backlog/icon.png";
-    }
+	public String getIconFileName() {
+		return "/plugin/backlog/icon.png";
+	}
 
-    public String getDisplayName() {
-        return "Backlog";
-    }
+	public String getDisplayName() {
+		return "Backlog";
+	}
 
-    public String getUrlName() {
-        if (prop.projectURL != null) {
-            return prop.projectURL;
-        }
-        return prop.spaceURL;
-    }
+	public String getUrlName() {
+		return prop.spaceURL;
+	}
 
 }
