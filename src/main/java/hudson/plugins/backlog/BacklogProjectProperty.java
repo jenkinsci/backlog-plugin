@@ -23,9 +23,12 @@ public final class BacklogProjectProperty extends
 
 	public final String projectURL;
 	public final String spaceURL;
+	public final String userId;
+	public final String password;
 
 	@DataBoundConstructor
-	public BacklogProjectProperty(final String spaceURL) {
+	public BacklogProjectProperty(final String spaceURL, final String userId,
+			final String password) {
 		String tempS = null;
 		String tempP = null;
 
@@ -45,6 +48,9 @@ public final class BacklogProjectProperty extends
 		}
 		this.spaceURL = tempS;
 		this.projectURL = tempP;
+
+		this.userId = userId;
+		this.password = password;
 	}
 
 	public String getProject() {
@@ -82,9 +88,10 @@ public final class BacklogProjectProperty extends
 		@Override
 		public JobProperty<?> newInstance(StaplerRequest req,
 				JSONObject formData) throws FormException {
+
 			BacklogProjectProperty bpp = req.bindJSON(
 					BacklogProjectProperty.class, formData);
-			if (bpp.spaceURL == null)
+			if (bpp.spaceURL == null) // TODO need?
 				bpp = null; // not configured
 			return bpp;
 		}

@@ -36,10 +36,6 @@ import org.kohsuke.stapler.QueryParameter;
  */
 public class BacklogNotifier extends Notifier {
 
-	public final String userId;
-
-	public final String password;
-
 	private static class MessageCreator extends MailSender {
 
 		private static final Pattern URL_MATCH_PATTERN = Pattern.compile(
@@ -71,9 +67,7 @@ public class BacklogNotifier extends Notifier {
 	}
 
 	@DataBoundConstructor
-	public BacklogNotifier(String userId, String password) {
-		this.userId = userId;
-		this.password = password;
+	public BacklogNotifier() {
 	}
 
 	@Override
@@ -98,7 +92,8 @@ public class BacklogNotifier extends Notifier {
 
 		try {
 			BacklogApiClient client = new BacklogApiClient();
-			client.login(bpp.spaceURL, userId, password);
+			// TODO check bpp value
+			client.login(bpp.spaceURL, bpp.userId, bpp.password);
 
 			Project project = client.getProject(bpp.getProject());
 			MimeMessage message = new MessageCreator(build, listener)
