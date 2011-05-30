@@ -91,6 +91,12 @@ public class BacklogNotifier extends Notifier {
 				BacklogProjectProperty.class);
 
 		// check project property parameter
+		if (bpp == null) {
+			listener.getLogger()
+					.println(
+							"'Backlog property' is not set, so creating issue is skipped.");
+			return true;
+		}
 		if (StringUtils.isEmpty(bpp.getSpaceURL())) {
 			listener.getLogger().println(
 					"'Backlog URL' is not set, so creating issue is skipped.");

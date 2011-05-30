@@ -55,7 +55,8 @@ public class BacklogRepositoryBrowser extends SubversionRepositoryBrowser {
 		}
 
 		BacklogProjectProperty property = getProjectProperty(path.getLogEntry());
-		if (property.getSpaceURL() == null || property.getProject() == null) {
+		if (property == null || property.getSpaceURL() == null
+				|| property.getProject() == null) {
 			return null;
 		}
 
@@ -80,7 +81,8 @@ public class BacklogRepositoryBrowser extends SubversionRepositoryBrowser {
 		}
 
 		BacklogProjectProperty property = getProjectProperty(path.getLogEntry());
-		if (property.getSpaceURL() == null || property.getProject() == null) {
+		if (property == null || property.getSpaceURL() == null
+				|| property.getProject() == null) {
 			return null;
 		}
 
@@ -100,7 +102,8 @@ public class BacklogRepositoryBrowser extends SubversionRepositoryBrowser {
 	@Override
 	public URL getChangeSetLink(LogEntry changeSet) throws IOException {
 		BacklogProjectProperty property = getProjectProperty(changeSet);
-		if (property.getSpaceURL() == null || property.getProject() == null) {
+		if (property == null || property.getSpaceURL() == null
+				|| property.getProject() == null) {
 			return null;
 		}
 

@@ -100,6 +100,10 @@ public final class BacklogProjectProperty extends
 		public JobProperty<?> newInstance(StaplerRequest req,
 				JSONObject formData) throws FormException {
 
+			if (formData.isEmpty()) {
+				return null;
+			}
+
 			BacklogProjectProperty bpp = req.bindJSON(
 					BacklogProjectProperty.class,
 					formData.getJSONObject("backlog"));
