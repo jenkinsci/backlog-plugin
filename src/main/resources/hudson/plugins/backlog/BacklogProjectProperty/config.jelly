@@ -3,7 +3,7 @@
   <f:optionalBlock title="Backlog" name="backlog"
     checked="${instance.url!=null || instanse.userId!=null || instance.password!=null}">
   
-    <f:entry title="Backlog URL" field="url" help="/plugin/backlog/help-projectConfig.html">
+    <f:entry title="Backlog URL" field="url">
       <f:textbox />
     </f:entry>
     

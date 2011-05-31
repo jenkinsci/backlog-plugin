@@ -15,7 +15,6 @@ import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.MailSender;
 import hudson.tasks.Notifier;
 import hudson.tasks.Publisher;
-import hudson.util.FormValidation;
 
 import java.io.IOException;
 import java.util.regex.Matcher;
@@ -27,7 +26,6 @@ import javax.mail.internet.MimeMessage;
 import org.apache.commons.lang.StringUtils;
 import org.apache.xmlrpc.XmlRpcException;
 import org.kohsuke.stapler.DataBoundConstructor;
-import org.kohsuke.stapler.QueryParameter;
 
 /**
  * Notifier that creates issue on Backlog.
@@ -167,15 +165,6 @@ public class BacklogNotifier extends Notifier {
 		@Override
 		public String getDisplayName() {
 			return Messages.BacklogNotifier_DisplayName();
-		}
-
-		public FormValidation doCheckUserId(@QueryParameter String userId) {
-			if (StringUtils.isEmpty(userId) || userId.matches("[A-Za-z0-9-_]+")) {
-				return FormValidation.ok();
-			} else {
-				return FormValidation.error(Messages
-						.BacklogNotifier_UserId_Error());
-			}
 		}
 
 	}

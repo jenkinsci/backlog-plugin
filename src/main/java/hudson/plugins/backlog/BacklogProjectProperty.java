@@ -6,10 +6,12 @@ import hudson.model.JobProperty;
 import hudson.model.JobPropertyDescriptor;
 import hudson.model.AbstractProject;
 import hudson.model.Job;
+import hudson.util.FormValidation;
 import net.sf.json.JSONObject;
 
 import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 
 /**
@@ -94,6 +96,15 @@ public final class BacklogProjectProperty extends
 		@Override
 		public String getDisplayName() {
 			return Messages.BacklogProjectProperty_DisplayName();
+		}
+
+		public FormValidation doCheckUserId(@QueryParameter String userId) {
+			if (StringUtils.isEmpty(userId) || userId.matches("[A-Za-z0-9-_]+")) {
+				return FormValidation.ok();
+			} else {
+				return FormValidation.error(Messages
+						.BacklogProjectProperty_UserId_Error());
+			}
 		}
 
 		@Override
