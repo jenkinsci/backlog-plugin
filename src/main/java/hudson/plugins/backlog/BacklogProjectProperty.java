@@ -28,8 +28,6 @@ public final class BacklogProjectProperty extends
 	public final String userId;
 	public final String password;
 
-	// TODO add help for userId/password
-
 	@DataBoundConstructor
 	public BacklogProjectProperty(final String url, final String userId,
 			final String password) {
