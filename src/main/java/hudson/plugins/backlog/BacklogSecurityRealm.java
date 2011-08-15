@@ -2,6 +2,7 @@ package hudson.plugins.backlog;
 
 import hudson.Extension;
 import hudson.model.Descriptor;
+import hudson.plugins.backlog.api.BacklogApiClient;
 import hudson.security.AbstractPasswordBasedSecurityRealm;
 import hudson.security.GroupDetails;
 import hudson.security.SecurityRealm;
@@ -28,19 +29,25 @@ public class BacklogSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 	private static final Log LOG = LogFactory
 			.getLog(BacklogSecurityRealm.class);
 
+	public final String url;
+
 	@DataBoundConstructor
-	public BacklogSecurityRealm() {
+	public BacklogSecurityRealm(String url) {
+		this.url = url;
 	}
 
 	@Override
 	protected UserDetails authenticate(String username, String password)
 			throws AuthenticationException {
-		// TODO Auto-generated method stub
-		if (true) {
+
+		try {
+			new BacklogApiClient().login(url, username, password);
 			return new User(username, "", true, true, true, true,
 					new GrantedAuthority[] { AUTHENTICATED_AUTHORITY });
-		} else {
-			throw new BadCredentialsException("Failed to login as " + username);
+
+		} catch (Exception e) {
+			throw new BadCredentialsException("Failed to login as " + username,
+					e);
 		}
 	}
 
