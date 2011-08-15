@@ -7,6 +7,7 @@ import hudson.security.GroupDetails;
 import hudson.security.SecurityRealm;
 
 import org.acegisecurity.AuthenticationException;
+import org.acegisecurity.BadCredentialsException;
 import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.userdetails.User;
 import org.acegisecurity.userdetails.UserDetails;
@@ -35,24 +36,28 @@ public class BacklogSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 	protected UserDetails authenticate(String username, String password)
 			throws AuthenticationException {
 		// TODO Auto-generated method stub
-		System.out.println("     authenticate     ");
-		return new User(username, password, true, true, true, true,
-				new GrantedAuthority[] { AUTHENTICATED_AUTHORITY });
+		if (true) {
+			return new User(username, "", true, true, true, true,
+					new GrantedAuthority[] { AUTHENTICATED_AUTHORITY });
+		} else {
+			throw new BadCredentialsException("Failed to login as " + username);
+		}
 	}
 
 	@Override
 	public UserDetails loadUserByUsername(String username)
 			throws UsernameNotFoundException, DataAccessException {
-		// TODO Auto-generated method stub
-		System.out.println("     loadUserByUsername     : " + username);
-		throw new UsernameNotFoundException(username);
+		LOG.info("Backlog Security Realm always returns the specified user : '"
+				+ username + "'");
+		return new User(username, "", true, true, true, true,
+				new GrantedAuthority[] { AUTHENTICATED_AUTHORITY });
 	}
 
 	@Override
 	public GroupDetails loadGroupByGroupname(String groupname)
 			throws UsernameNotFoundException, DataAccessException {
-		// TODO Auto-generated method stub
-		System.out.println("     loadGroupByGroupname     : " + groupname);
+		LOG.warn("Backlog Security Realm doesn't support groups : '"
+				+ groupname + "'");
 		throw new UsernameNotFoundException(groupname);
 	}
 
