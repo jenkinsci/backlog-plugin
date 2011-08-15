@@ -73,12 +73,6 @@ public class BacklogSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 		public String getDisplayName() {
 			return "Backlog";
 		}
-
-		@Override
-		public String getHelpFile() {
-			// TODO add valid help file
-			return "/help/security/private-realm.html";
-		}
 	}
 
 }
