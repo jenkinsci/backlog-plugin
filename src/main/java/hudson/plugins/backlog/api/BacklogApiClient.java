@@ -29,21 +29,26 @@ public class BacklogApiClient {
 
 	public void login(final String spaceURL, final String userName,
 			final String password) {
-		final String url = spaceURL + "XML-RPC";
-
 		try {
 			final XmlRpcClientConfigImpl config = new XmlRpcClientConfigImpl();
-			config.setServerURL(new URL(url));
+			config.setServerURL(getEntryPointURL(spaceURL));
 			config.setBasicUserName(userName);
 			config.setBasicPassword(password);
 
 			client.setConfig(config);
 
 			getUser(userName);
-		} catch (final MalformedURLException e) {
-			throw new RuntimeException(e);
 		} catch (final XmlRpcException e) {
 			throw new IllegalArgumentException("Failed login to Backlog", e);
+		}
+	}
+
+	public URL getEntryPointURL(final String spaceURL) {
+		try {
+			return new URL(spaceURL + "XML-RPC");
+		} catch (MalformedURLException e) {
+			throw new IllegalArgumentException("Bad Space URL : '" + spaceURL
+					+ "'", e);
 		}
 	}
 

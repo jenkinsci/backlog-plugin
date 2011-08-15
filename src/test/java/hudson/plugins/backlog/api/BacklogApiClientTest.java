@@ -26,6 +26,11 @@ public class BacklogApiClientTest extends BaseTest {
 		client.login("https://fail.backlog.jp/", "fail", "fail");
 	}
 
+	@Test(expected = IllegalArgumentException.class)
+	public void malformedUrl() throws Exception {
+		client.getEntryPointURL("malformed_url.backlog.jp");
+	}
+
 	@Test
 	public void getProject() throws Exception {
 		final Project project = client.getProject(BACKLOG_PROJECT_KEY);

@@ -6,6 +6,7 @@ import hudson.plugins.backlog.api.BacklogApiClient;
 import hudson.security.AbstractPasswordBasedSecurityRealm;
 import hudson.security.GroupDetails;
 import hudson.security.SecurityRealm;
+import hudson.util.FormValidation;
 
 import org.acegisecurity.AuthenticationException;
 import org.acegisecurity.BadCredentialsException;
@@ -16,6 +17,7 @@ import org.acegisecurity.userdetails.UsernameNotFoundException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.QueryParameter;
 import org.springframework.dao.DataAccessException;
 
 /**
@@ -72,6 +74,17 @@ public class BacklogSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 	public static final class DescriptorImpl extends Descriptor<SecurityRealm> {
 		public String getDisplayName() {
 			return "Backlog";
+		}
+
+		public FormValidation doCheckUrl(@QueryParameter String url) {
+			try {
+				new BacklogApiClient().getEntryPointURL(url);
+			} catch (IllegalArgumentException e) {
+				return FormValidation.error(Messages
+						.BacklogSecurityRealm_Url_Error());
+			}
+
+			return FormValidation.ok();
 		}
 	}
 

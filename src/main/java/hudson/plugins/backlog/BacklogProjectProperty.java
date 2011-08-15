@@ -6,6 +6,7 @@ import hudson.model.JobProperty;
 import hudson.model.JobPropertyDescriptor;
 import hudson.model.AbstractProject;
 import hudson.model.Job;
+import hudson.plugins.backlog.api.BacklogApiClient;
 import hudson.util.FormValidation;
 import net.sf.json.JSONObject;
 
@@ -94,6 +95,17 @@ public final class BacklogProjectProperty extends
 		@Override
 		public String getDisplayName() {
 			return Messages.BacklogProjectProperty_DisplayName();
+		}
+
+		public FormValidation doCheckUrl(@QueryParameter String url) {
+			try {
+				new BacklogApiClient().getEntryPointURL(url);
+			} catch (IllegalArgumentException e) {
+				return FormValidation.error(Messages
+						.BacklogSecurityRealm_Url_Error());
+			}
+
+			return FormValidation.ok();
 		}
 
 		public FormValidation doCheckUserId(@QueryParameter String userId) {
