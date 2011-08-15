@@ -14,6 +14,7 @@ import org.acegisecurity.GrantedAuthority;
 import org.acegisecurity.userdetails.User;
 import org.acegisecurity.userdetails.UserDetails;
 import org.acegisecurity.userdetails.UsernameNotFoundException;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -35,7 +36,16 @@ public class BacklogSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 
 	@DataBoundConstructor
 	public BacklogSecurityRealm(String url) {
-		this.url = url;
+		// normalize
+		if (StringUtils.isNotEmpty(url)) {
+			if (url.endsWith("/")) {
+				this.url = url;
+			} else {
+				this.url = url + '/';
+			}
+		} else {
+			this.url = null;
+		}
 	}
 
 	@Override
