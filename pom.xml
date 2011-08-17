@@ -9,7 +9,7 @@
 
   <artifactId>backlog</artifactId>
   <packaging>hpi</packaging>
-  <version>1.5</version>
+  <version>1.6-SNAPSHOT</version>
   <name>Jenkins Backlog plugin</name>
   <description>Integrates Jenkins to Backlog</description>
   <url>http://wiki.jenkins-ci.org/display/JENKINS/Backlog+Plugin</url>
