@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.net.URLEncoder;
 
+import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 /**
@@ -22,37 +23,57 @@ import org.kohsuke.stapler.DataBoundConstructor;
  */
 public class BacklogRepositoryBrowser extends SubversionRepositoryBrowser {
 
-	public final URL url;
+	public final String url;
 
 	@DataBoundConstructor
-	public BacklogRepositoryBrowser(URL url) {
+	public BacklogRepositoryBrowser(String url) {
 		this.url = url;
 	}
 
 	/**
 	 * Gets a Backlog project property configured for the current project.
 	 */
-	private BacklogProjectProperty getProjectProperty(LogEntry cs) {
+	BacklogProjectProperty getProjectProperty(LogEntry cs) {
 		AbstractProject<?, ?> p = (AbstractProject<?, ?>) cs.getParent().build
 				.getProject();
 
 		return p.getProperty(BacklogProjectProperty.class);
 	}
 
-	private String getSpaceURL(LogEntry cs) {
-		BacklogProjectProperty property = getProjectProperty(cs);
-		if (property == null || property.getSpaceURL() == null) {
-			return null;
+	String getSpaceURL(LogEntry cs) {
+		if (isDefaultSvnUrl()) {
+			BacklogProjectProperty property = getProjectProperty(cs);
+			if (property == null || property.getSpaceURL() == null) {
+				return null;
+			}
+			return property.getSpaceURL();
+
+		} else {
+			if (!url.contains("/svn/")) {
+				return null;
+			}
+			return url.substring(0, url.indexOf("/svn/") + 1);
 		}
-		return property.getSpaceURL();
 	}
 
-	private String getProject(LogEntry cs) {
-		BacklogProjectProperty property = getProjectProperty(cs);
-		if (property == null || property.getProject() == null) {
-			return null;
+	String getProject(LogEntry cs) {
+		if (isDefaultSvnUrl()) {
+			BacklogProjectProperty property = getProjectProperty(cs);
+			if (property == null || property.getProject() == null) {
+				return null;
+			}
+			return property.getProject();
+
+		} else {
+			if (!url.contains("/svn/")) {
+				return null;
+			}
+			return url.substring(url.indexOf("/svn/") + "/svn/".length());
 		}
-		return property.getProject();
+	}
+
+	boolean isDefaultSvnUrl() {
+		return StringUtils.isEmpty(url);
 	}
 
 	@Override
