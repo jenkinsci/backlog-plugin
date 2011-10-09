@@ -22,8 +22,11 @@ import org.kohsuke.stapler.DataBoundConstructor;
  */
 public class BacklogRepositoryBrowser extends SubversionRepositoryBrowser {
 
+	public final URL url;
+
 	@DataBoundConstructor
-	public BacklogRepositoryBrowser() {
+	public BacklogRepositoryBrowser(URL url) {
+		this.url = url;
 	}
 
 	/**
