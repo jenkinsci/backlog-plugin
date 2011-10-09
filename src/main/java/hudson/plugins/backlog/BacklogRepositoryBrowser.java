@@ -39,16 +39,20 @@ public class BacklogRepositoryBrowser extends SubversionRepositoryBrowser {
 		return p.getProperty(BacklogProjectProperty.class);
 	}
 
-	@Extension
-	public static final class DescriptorImpl extends
-			Descriptor<RepositoryBrowser<?>> {
-		public DescriptorImpl() {
-			super(BacklogRepositoryBrowser.class);
+	private String getSpaceURL(LogEntry cs) {
+		BacklogProjectProperty property = getProjectProperty(cs);
+		if (property == null || property.getSpaceURL() == null) {
+			return null;
 		}
+		return property.getSpaceURL();
+	}
 
-		public String getDisplayName() {
-			return "Backlog";
+	private String getProject(LogEntry cs) {
+		BacklogProjectProperty property = getProjectProperty(cs);
+		if (property == null || property.getProject() == null) {
+			return null;
 		}
+		return property.getProject();
 	}
 
 	@Override
@@ -57,9 +61,8 @@ public class BacklogRepositoryBrowser extends SubversionRepositoryBrowser {
 			return null; // no diff if this is not an edit change
 		}
 
-		BacklogProjectProperty property = getProjectProperty(path.getLogEntry());
-		if (property == null || property.getSpaceURL() == null
-				|| property.getProject() == null) {
+		LogEntry logEntry = path.getLogEntry();
+		if (getSpaceURL(logEntry) == null || getProject(logEntry) == null) {
 			return null;
 		}
 
@@ -71,8 +74,8 @@ public class BacklogRepositoryBrowser extends SubversionRepositoryBrowser {
 		}
 		String encodedPath = URLEncoder.encode(filePath, "UTF-8");
 
-		return new URL(property.getSpaceURL() + "ViewRepositoryFileDiff.action"
-				+ "?projectKey=" + property.getProject() + "&path="
+		return new URL(getSpaceURL(logEntry) + "ViewRepositoryFileDiff.action"
+				+ "?projectKey=" + getProject(logEntry) + "&path="
 				+ encodedPath + "&fromRevision=" + "-1" + "&toRevision="
 				+ revision);
 	}
@@ -83,9 +86,8 @@ public class BacklogRepositoryBrowser extends SubversionRepositoryBrowser {
 			return null;
 		}
 
-		BacklogProjectProperty property = getProjectProperty(path.getLogEntry());
-		if (property == null || property.getSpaceURL() == null
-				|| property.getProject() == null) {
+		LogEntry logEntry = path.getLogEntry();
+		if (getSpaceURL(logEntry) == null || getProject(logEntry) == null) {
 			return null;
 		}
 
@@ -97,21 +99,31 @@ public class BacklogRepositoryBrowser extends SubversionRepositoryBrowser {
 		}
 		String encodedPath = URLEncoder.encode(filePath, "UTF-8");
 
-		return new URL(property.getSpaceURL() + "ViewRepositoryFile.action"
-				+ "?projectKey=" + property.getProject() + "&r=" + revision
+		return new URL(getSpaceURL(logEntry) + "ViewRepositoryFile.action"
+				+ "?projectKey=" + getProject(logEntry) + "&r=" + revision
 				+ "&path=" + encodedPath);
 	}
 
 	@Override
 	public URL getChangeSetLink(LogEntry changeSet) throws IOException {
-		BacklogProjectProperty property = getProjectProperty(changeSet);
-		if (property == null || property.getSpaceURL() == null
-				|| property.getProject() == null) {
+		if (getSpaceURL(changeSet) == null || getProject(changeSet) == null) {
 			return null;
 		}
 
-		return new URL(property.getSpaceURL() + "rev/" + property.getProject()
+		return new URL(getSpaceURL(changeSet) + "rev/" + getProject(changeSet)
 				+ "/" + changeSet.getRevision());
+	}
+
+	@Extension
+	public static final class DescriptorImpl extends
+			Descriptor<RepositoryBrowser<?>> {
+		public DescriptorImpl() {
+			super(BacklogRepositoryBrowser.class);
+		}
+
+		public String getDisplayName() {
+			return "Backlog";
+		}
 	}
 
 }
