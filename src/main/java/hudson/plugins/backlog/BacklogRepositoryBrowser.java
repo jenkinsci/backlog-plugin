@@ -55,11 +55,11 @@ public class BacklogRepositoryBrowser extends SubversionRepositoryBrowser {
 			return property.getSpaceURL();
 
 		} else {
-			if (!url.contains("/svn/")) {
-				LOG.warn("Option repository browser url is not correct");
+			if (!url.contains("/projects/")) {
+				LOG.warn("Option project url is not correct");
 				return null;
 			}
-			return url.substring(0, url.indexOf("/svn/") + 1);
+			return url.substring(0, url.indexOf("/projects/") + 1);
 		}
 	}
 
@@ -73,11 +73,12 @@ public class BacklogRepositoryBrowser extends SubversionRepositoryBrowser {
 			return property.getProject();
 
 		} else {
-			if (!url.contains("/svn/")) {
-				LOG.warn("Option repository browser url is not correct");
+			if (!url.contains("/projects/")) {
+				LOG.warn("Option project url is not correct");
 				return null;
 			}
-			return url.substring(url.indexOf("/svn/") + "/svn/".length());
+			return url.substring(url.indexOf("/projects/")
+					+ "/projects/".length());
 		}
 	}
 

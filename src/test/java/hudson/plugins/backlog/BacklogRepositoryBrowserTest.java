@@ -10,7 +10,7 @@ public class BacklogRepositoryBrowserTest {
 	@Test
 	public void testGetSpaceURLAndProjectWhenOptionUrlset() throws Exception {
 		BacklogRepositoryBrowser browser = new BacklogRepositoryBrowser(
-				"https://demo.backlog.jp/svn/STWK");
+				"https://demo.backlog.jp/projects/STWK");
 
 		assertThat(browser.getSpaceURL(null), is("https://demo.backlog.jp/"));
 		assertThat(browser.getProject(null), is("STWK"));
