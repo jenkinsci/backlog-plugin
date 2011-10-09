@@ -35,7 +35,7 @@ public class BacklogChangelogAnnotator extends ChangeLogAnnotator {
 		BacklogProjectProperty bpp = build.getProject().getProperty(
 				BacklogProjectProperty.class);
 		if (bpp == null || bpp.getSpaceURL() == null) {
-			LOG.debug("BacklogProjectProperty is null or BacklogProjectProperty's spaceURL is null");
+			LOG.warn("BacklogProjectProperty is null or BacklogProjectProperty's spaceURL is null");
 			return;
 		}
 		annotate(bpp.getSpaceURL(), text);

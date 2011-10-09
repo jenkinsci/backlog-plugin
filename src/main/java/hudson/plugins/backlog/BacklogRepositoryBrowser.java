@@ -14,6 +14,8 @@ import java.net.URL;
 import java.net.URLEncoder;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 /**
@@ -22,6 +24,9 @@ import org.kohsuke.stapler.DataBoundConstructor;
  * @author ikikko
  */
 public class BacklogRepositoryBrowser extends SubversionRepositoryBrowser {
+
+	private static final Log LOG = LogFactory
+			.getLog(BacklogRepositoryBrowser.class);
 
 	public final String url;
 
@@ -44,12 +49,14 @@ public class BacklogRepositoryBrowser extends SubversionRepositoryBrowser {
 		if (isDefaultSvnUrl()) {
 			BacklogProjectProperty property = getProjectProperty(cs);
 			if (property == null || property.getSpaceURL() == null) {
+				LOG.warn("BacklogProjectProperty is null or BacklogProjectProperty's spaceURL is null");
 				return null;
 			}
 			return property.getSpaceURL();
 
 		} else {
 			if (!url.contains("/svn/")) {
+				LOG.warn("Option repository browser url is not correct");
 				return null;
 			}
 			return url.substring(0, url.indexOf("/svn/") + 1);
@@ -60,12 +67,14 @@ public class BacklogRepositoryBrowser extends SubversionRepositoryBrowser {
 		if (isDefaultSvnUrl()) {
 			BacklogProjectProperty property = getProjectProperty(cs);
 			if (property == null || property.getProject() == null) {
+				LOG.warn("BacklogProjectProperty is null or BacklogProjectProperty's project is null");
 				return null;
 			}
 			return property.getProject();
 
 		} else {
 			if (!url.contains("/svn/")) {
+				LOG.warn("Option repository browser url is not correct");
 				return null;
 			}
 			return url.substring(url.indexOf("/svn/") + "/svn/".length());
