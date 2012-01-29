@@ -1,9 +1,18 @@
 package hudson.plugins.backlog.webdav;
 
+import static org.hamcrest.CoreMatchers.*;
+import static org.junit.Assert.*;
 import hudson.plugins.backlog.api.BaseTest;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.Authenticator;
+import java.net.PasswordAuthentication;
+import java.net.URL;
 
+import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,6 +26,10 @@ public class WebdavClientTest extends BaseTest {
 			+ BACKLOG_PROJECT_KEY + "/";
 
 	private static final String TEST_PATH = "sardine/";
+
+	private static final String TEST_TEXT_FILE = "test-put.txt";
+
+	private static final String TEST_TEXT_STRING = "put test text.";
 
 	private static WebdavClient client = new WebdavClient(FILE_URL,
 			BACKLOG_USERNAME, BACKLOG_PASSWORD);
@@ -33,6 +46,16 @@ public class WebdavClientTest extends BaseTest {
 	// @Ignore("更新系APIは、普段のユニットテストでは実行しない")
 	public static class SideEffectsTests {
 
+		static {
+			Authenticator.setDefault(new Authenticator() {
+				@Override
+				protected PasswordAuthentication getPasswordAuthentication() {
+					return new PasswordAuthentication(BACKLOG_USERNAME,
+							BACKLOG_PASSWORD.toCharArray());
+				}
+			});
+		}
+
 		@Before
 		public void setUp() throws Exception {
 			client.createDirectory(TEST_PATH);
@@ -45,15 +68,37 @@ public class WebdavClientTest extends BaseTest {
 
 		@Test
 		public void put() throws Exception {
-			File file = new File(this.getClass().getResource("test-put.txt")
+			File file = new File(this.getClass().getResource(TEST_TEXT_FILE)
 					.toURI());
 			client.put(file, TEST_PATH);
+
+			assertPutText(FILE_URL + TEST_PATH + TEST_TEXT_FILE);
 		}
 
 		@Test
 		public void putAll() throws Exception {
-			File dir = new File(this.getClass().getResource("putAll").toURI());
+			String putAllPath = "putAll/";
+			String putAllChildPath = "child/";
+
+			File dir = new File(this.getClass().getResource(putAllPath).toURI());
 			client.putAll(dir, TEST_PATH);
+
+			assertPutText(FILE_URL + TEST_PATH + putAllPath + TEST_TEXT_FILE);
+			assertPutText(FILE_URL + TEST_PATH + putAllPath + putAllChildPath
+					+ TEST_TEXT_FILE);
+		}
+
+		private static void assertPutText(String url) throws Exception {
+			BufferedReader reader = null;
+			try {
+				InputStream in = new URL(url).openStream();
+				reader = new BufferedReader(new InputStreamReader(in));
+
+				assertThat(reader.readLine(), is(TEST_TEXT_STRING));
+			} finally {
+				IOUtils.closeQuietly(reader);
+			}
+
 		}
 
 	}
