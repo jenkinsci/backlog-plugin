@@ -57,12 +57,28 @@
     	<artifactId>subversion</artifactId>
     	<version>1.11</version>
     </dependency>
+    <dependency>
+    	<groupId>com.googlecode.sardine</groupId>
+    	<artifactId>sardine</artifactId>
+    	<version>314</version>
+    </dependency>
+    <dependency>
+    	<groupId>org.slf4j</groupId>
+    	<artifactId>slf4j-jcl</artifactId>
+    	<version>1.6.4</version>
+    	<scope>runtime</scope>
+    </dependency>
   </dependencies>
 
   <repositories>
     <repository>
       <id>m.g.o-public</id>
       <url>http://maven.glassfish.org/content/groups/public/</url>
+    </repository>
+    <repository>
+      <id>sardine-google-svn-repo</id>
+      <name>Sardine maven repo at Google Code</name>
+      <url>http://sardine.googlecode.com/svn/maven/</url>
     </repository>
   </repositories>
 
