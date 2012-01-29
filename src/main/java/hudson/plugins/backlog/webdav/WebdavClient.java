@@ -36,4 +36,18 @@ public class WebdavClient {
 				HTTP.DEFAULT_CONTENT_TYPE, true);
 	}
 
+	// -------------------------------------- helper method (package private)
+
+	void createDirectory(String path) throws IOException {
+		sardine.createDirectory(url + path);
+	}
+
+	void delete(String path) throws IOException {
+		String deleteUrl = url + path;
+
+		if (sardine.exists(deleteUrl)) {
+			sardine.delete(deleteUrl);
+		}
+	}
+
 }
