@@ -50,6 +50,12 @@ public class WebdavClientTest extends BaseTest {
 			client.put(file, TEST_PATH);
 		}
 
+		@Test
+		public void putAll() throws Exception {
+			File dir = new File(this.getClass().getResource("putAll").toURI());
+			client.putAll(dir, TEST_PATH);
+		}
+
 	}
 
 }

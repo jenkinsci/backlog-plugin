@@ -36,10 +36,19 @@ public class WebdavClient {
 				HTTP.DEFAULT_CONTENT_TYPE, true);
 	}
 
+	public void putAll(File dir, String path) throws IOException {
+		createDirectory(path);
+		putRecursive(dir, path);
+	}
+
 	// -------------------------------------- helper method (package private)
 
 	void createDirectory(String path) throws IOException {
-		sardine.createDirectory(url + path);
+		String createUrl = url + path;
+
+		if (!sardine.exists(createUrl)) {
+			sardine.createDirectory(createUrl);
+		}
 	}
 
 	void delete(String path) throws IOException {
@@ -47,6 +56,19 @@ public class WebdavClient {
 
 		if (sardine.exists(deleteUrl)) {
 			sardine.delete(deleteUrl);
+		}
+	}
+
+	void putRecursive(File dir, String path) throws IOException {
+		String concatPath = path + dir.getName() + "/";
+
+		createDirectory(concatPath);
+		for (File file : dir.listFiles()) {
+			if (file.isDirectory()) {
+				putRecursive(file, concatPath);
+			} else {
+				put(file, concatPath);
+			}
 		}
 	}
 
