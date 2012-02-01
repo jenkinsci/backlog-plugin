@@ -76,6 +76,18 @@ public class WebdavClientTest extends BaseTest {
 		}
 
 		@Test
+		public void putWithParent() throws Exception {
+			File file = new File(this.getClass().getResource(TEST_TEXT_FILE)
+					.toURI());
+			File root = new File(this.getClass().getResource("/").toURI());
+
+			client.putWithParent(file, TEST_PATH, root);
+
+			assertPutText(FILE_URL + TEST_PATH
+					+ client.getPathFromRoot(file, root));
+		}
+
+		@Test
 		public void putAll() throws Exception {
 			String putAllPath = "putAll/";
 			String putAllChildPath = "child/";
