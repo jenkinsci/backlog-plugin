@@ -2,6 +2,7 @@ package hudson.plugins.backlog.webdav;
 
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
+import hudson.FilePath;
 import hudson.plugins.backlog.api.BaseTest;
 
 import java.io.BufferedReader;
@@ -70,7 +71,9 @@ public class WebdavClientTest extends BaseTest {
 		public void put() throws Exception {
 			File file = new File(this.getClass().getResource(TEST_TEXT_FILE)
 					.toURI());
-			client.put(file, TEST_PATH);
+			FilePath filePath = new FilePath(file);
+
+			client.put(filePath, TEST_PATH);
 
 			assertPutText(FILE_URL + TEST_PATH + TEST_TEXT_FILE);
 		}
@@ -80,24 +83,13 @@ public class WebdavClientTest extends BaseTest {
 			File file = new File(this.getClass().getResource(TEST_TEXT_FILE)
 					.toURI());
 			File root = new File(this.getClass().getResource("/").toURI());
+			FilePath filePath = new FilePath(file);
+			FilePath rootPath = new FilePath(root);
 
-			client.putWithParent(file, TEST_PATH, root);
+			client.putWithParent(filePath, TEST_PATH, rootPath);
 
 			assertPutText(FILE_URL + TEST_PATH
-					+ client.getPathFromRoot(file, root));
-		}
-
-		@Test
-		public void putAll() throws Exception {
-			String putAllPath = "putAll/";
-			String putAllChildPath = "child/";
-
-			File dir = new File(this.getClass().getResource(putAllPath).toURI());
-			client.putAll(dir, TEST_PATH);
-
-			assertPutText(FILE_URL + TEST_PATH + putAllPath + TEST_TEXT_FILE);
-			assertPutText(FILE_URL + TEST_PATH + putAllPath + putAllChildPath
-					+ TEST_TEXT_FILE);
+					+ client.getPathFromBase(filePath, rootPath));
 		}
 
 		private static void assertPutText(String url) throws Exception {

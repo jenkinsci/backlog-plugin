@@ -1,10 +1,10 @@
 package hudson.plugins.backlog.webdav;
 
-import java.io.File;
+import hudson.FilePath;
+
 import java.io.IOException;
 
 import org.apache.http.HttpEntity;
-import org.apache.http.entity.FileEntity;
 import org.apache.http.protocol.HTTP;
 
 import com.googlecode.sardine.SardineFactory;
@@ -29,12 +29,11 @@ public class WebdavClient {
 		}
 	}
 
-	// FIXME fileからFilePathに変更（JenkinsからはFilePathで渡ってくるので）
+	public void put(FilePath filePath, String remotePath) throws IOException {
+		HttpEntity entity = new FilePathEntity(filePath,
+				HTTP.DEFAULT_CONTENT_TYPE);
 
-	public void put(File file, String path) throws IOException {
-		HttpEntity entity = new FileEntity(file, HTTP.DEFAULT_CONTENT_TYPE);
-
-		sardine.put(url + path + file.getName(), entity,
+		sardine.put(url + remotePath + filePath.getName(), entity,
 				HTTP.DEFAULT_CONTENT_TYPE, true);
 	}
 
@@ -44,67 +43,50 @@ public class WebdavClient {
 
 	// TODO implement : deep directory with path
 
-	// FIXME 下からじゃなくて、上からディレクトリを掘る
-	public void putWithParent(File file, String path, File root)
-			throws IOException {
-		createDirectory(path);
-		createParentDirectory(file.getParentFile(), path, root);
-		put(file, path + getPathFromRoot(file.getParentFile(), root) + "/");
-	}
+	public void putWithParent(FilePath filePath, String remotePath,
+			FilePath basePath) throws IOException, InterruptedException {
+		createDirectory(remotePath);
+		createDirectoriesFromBase(filePath.getParent(), remotePath, basePath);
 
-	public void putAll(File dir, String path) throws IOException {
-		createDirectory(path);
-		putRecursive(dir, path);
+		put(filePath,
+				remotePath + getPathFromBase(filePath.getParent(), basePath));
 	}
 
 	// -------------------------------------- helper method (package private)
 
-	void createDirectory(String path) throws IOException {
-		String createUrl = url + path;
+	void createDirectory(String remotePath) throws IOException {
+		String createUrl = url + remotePath;
 
 		if (!sardine.exists(createUrl)) {
 			sardine.createDirectory(createUrl);
 		}
 	}
 
-	void delete(String path) throws IOException {
-		String deleteUrl = url + path;
+	void delete(String remotePath) throws IOException {
+		String deleteUrl = url + remotePath;
 
 		if (sardine.exists(deleteUrl)) {
 			sardine.delete(deleteUrl);
 		}
 	}
 
-	void createParentDirectory(File file, String path, File root)
-			throws IOException {
-		if (!isRootDirectory(file, root)) {
-			createParentDirectory(file.getParentFile(), path, root);
+	void createDirectoriesFromBase(FilePath filePath, String remotePath,
+			FilePath basePath) throws IOException, InterruptedException {
+		String remote = remotePath;
+		String pathFromBaseDir = getPathFromBase(filePath, basePath);
+
+		for (String path : pathFromBaseDir.split("/")) {
+			remote = remote + path + "/";
+			createDirectory(remote);
 		}
-
-		createDirectory(path + getPathFromRoot(file, root));
 	}
 
-	boolean isRootDirectory(File file, File root) throws IOException {
-		return file.getParentFile().getCanonicalPath()
-				.equals(root.getCanonicalPath());
-	}
+	String getPathFromBase(FilePath filePath, FilePath basePath)
+			throws IOException, InterruptedException {
+		String pathString = filePath.toURI().normalize().getPath();
+		String baseString = basePath.toURI().normalize().getPath();
 
-	String getPathFromRoot(File file, File root) throws IOException {
-		return file.getCanonicalPath().substring(
-				root.getCanonicalPath().length() + 1);
-	}
-
-	void putRecursive(File dir, String path) throws IOException {
-		String concatPath = path + dir.getName() + "/";
-
-		createDirectory(concatPath);
-		for (File file : dir.listFiles()) {
-			if (file.isDirectory()) {
-				putRecursive(file, concatPath);
-			} else {
-				put(file, concatPath);
-			}
-		}
+		return pathString.substring(baseString.length());
 	}
 
 }
