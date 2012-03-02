@@ -35,8 +35,11 @@ public class FilePathEntity extends AbstractHttpEntity {
 	}
 
 	public long getContentLength() {
-		// A length of -1 means "go until end of stream"
-		return -1;
+		try {
+			return filePath.length();
+		} catch (Exception e) {
+			throw new IllegalStateException(e);
+		}
 	}
 
 	public InputStream getContent() throws IOException, IllegalStateException {
