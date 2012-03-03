@@ -19,18 +19,24 @@ import org.kohsuke.stapler.DataBoundConstructor;
 
 public class BacklogWebdavPublisher extends Notifier {
 
-	public final String artifacts;
+	public final String sourceFiles;
+	public final String removePrefix;
+	public final String remoteDirectory;
 
 	@DataBoundConstructor
-	public BacklogWebdavPublisher(String artifacts) {
-		this.artifacts = artifacts;
+	public BacklogWebdavPublisher(String sourceFiles, String removePrefix,
+			String remoteDirectory) {
+		this.sourceFiles = sourceFiles;
+		this.removePrefix = removePrefix;
+		this.remoteDirectory = remoteDirectory;
 	}
 
 	public BuildStepMonitor getRequiredMonitorService() {
 		return BuildStepMonitor.NONE;
 	}
 
-	// FIXME confirm on slave
+	// TODO confirm on slave
+	// TODO confirm on windows
 
 	@Override
 	public boolean perform(AbstractBuild<?, ?> build, Launcher launcher,
@@ -45,16 +51,14 @@ public class BacklogWebdavPublisher extends Notifier {
 		WebdavClient client = new WebdavClient(bpp.getSpaceURL() + "dav/"
 				+ bpp.getProject() + "/", bpp.userId, bpp.password);
 
-		// String includes = build.getEnvironment(listener).expand(artifacts);
-		String includes = build.getEnvironment(listener).expand(
-				"**/src/**/java/**/*");
+		String includes = build.getEnvironment(listener).expand(sourceFiles);
 		FilePath[] filePaths = build.getWorkspace().list(includes);
 
 		listener.getLogger().println("***** " + build.getWorkspace());
 		for (FilePath filePath : filePaths) {
 			listener.getLogger().println("***** " + filePath);
 
-			client.putWithParent(filePath, "BacklogPublisher/",
+			client.putWithParent(filePath, remoteDirectory,
 					build.getWorkspace());
 		}
 
