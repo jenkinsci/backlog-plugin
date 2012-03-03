@@ -15,9 +15,14 @@ import hudson.tasks.Publisher;
 
 import java.io.IOException;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 public class BacklogWebdavPublisher extends Notifier {
+
+	private static final Log LOG = LogFactory
+			.getLog(BacklogWebdavPublisher.class);
 
 	public final String sourceFiles;
 	public final String removePrefix;
@@ -42,6 +47,7 @@ public class BacklogWebdavPublisher extends Notifier {
 	public boolean perform(AbstractBuild<?, ?> build, Launcher launcher,
 			BuildListener listener) throws InterruptedException, IOException {
 		if (build.getResult().isWorseThan(Result.UNSTABLE)) {
+			LOG.info("WebDAV Publisher is not performed because build is not success or unstable.");
 			return true;
 		}
 
@@ -53,17 +59,21 @@ public class BacklogWebdavPublisher extends Notifier {
 		client.setRemovePrefix(removePrefix);
 
 		String includes = build.getEnvironment(listener).expand(sourceFiles);
-		FilePath[] filePaths = build.getWorkspace().list(includes);
-
-		listener.getLogger().println("***** " + build.getWorkspace());
-		for (FilePath filePath : filePaths) {
-			listener.getLogger().println("***** " + filePath);
-
-			client.putWithParent(filePath, remoteDirectory,
+		for (FilePath filePath : build.getWorkspace().list(includes)) {
+			LOG.debug("put file : " + filePath);
+			client.putWithParent(filePath, getRemoteDirectoryWithSlash(),
 					build.getWorkspace());
 		}
 
 		return true;
+	}
+
+	private String getRemoteDirectoryWithSlash() {
+		if (remoteDirectory.endsWith("/")) {
+			return remoteDirectory;
+		} else {
+			return remoteDirectory + "/";
+		}
 	}
 
 	@Extension
