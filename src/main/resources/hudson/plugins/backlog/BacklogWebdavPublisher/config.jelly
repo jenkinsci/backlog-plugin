@@ -46,7 +46,7 @@ THE SOFTWARE.
       <f:checkbox />
     </f:entry>
     
-    <f:entry title="Delete Remote directory before publish" field="deleteDirBeforePublish">
+    <f:entry title="Delete Remote directory before publish" field="deleteDirectoryBeforePublish">
       <f:checkbox />
     </f:entry>
         

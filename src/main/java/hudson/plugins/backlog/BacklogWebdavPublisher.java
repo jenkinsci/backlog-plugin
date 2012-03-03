@@ -27,13 +27,15 @@ public class BacklogWebdavPublisher extends Notifier {
 	public final String sourceFiles;
 	public final String removePrefix;
 	public final String remoteDirectory;
+	public final boolean deleteDirectoryBeforePublish;
 
 	@DataBoundConstructor
 	public BacklogWebdavPublisher(String sourceFiles, String removePrefix,
-			String remoteDirectory) {
+			String remoteDirectory, boolean deleteDirectoryBeforePublish) {
 		this.sourceFiles = sourceFiles;
 		this.removePrefix = removePrefix;
 		this.remoteDirectory = remoteDirectory;
+		this.deleteDirectoryBeforePublish = deleteDirectoryBeforePublish;
 	}
 
 	public BuildStepMonitor getRequiredMonitorService() {
@@ -58,9 +60,16 @@ public class BacklogWebdavPublisher extends Notifier {
 				+ bpp.getProject() + "/", bpp.userId, bpp.password);
 		client.setRemovePrefix(removePrefix);
 
+		if (deleteDirectoryBeforePublish) {
+			LOG.debug("delete directory : " + getRemoteDirectoryWithSlash());
+			client.delete(getRemoteDirectoryWithSlash());
+		}
+
 		String includes = build.getEnvironment(listener).expand(sourceFiles);
 		for (FilePath filePath : build.getWorkspace().list(includes)) {
-			LOG.debug("put file : " + filePath);
+			if (LOG.isDebugEnabled()) {
+				LOG.debug("put file : " + filePath);
+			}
 			client.putWithParent(filePath, getRemoteDirectoryWithSlash(),
 					build.getWorkspace());
 		}

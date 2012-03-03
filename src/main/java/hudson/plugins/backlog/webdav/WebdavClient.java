@@ -45,7 +45,6 @@ public class WebdavClient {
 	// TODO implement : mkdir root directory
 	// (if can't, remote directory is required)
 
-	// TODO add option : delete dir before put
 	// TODO add option : remote directory is time format
 
 	public void putWithParent(FilePath filePath, String remotePath,
@@ -57,6 +56,14 @@ public class WebdavClient {
 				remotePath + getPathFromBase(filePath.getParent(), basePath));
 	}
 
+	public void delete(String remotePath) throws IOException {
+		String deleteUrl = url + remotePath;
+
+		if (sardine.exists(deleteUrl)) {
+			sardine.delete(deleteUrl);
+		}
+	}
+
 	// -------------------------------------- helper method (package private)
 
 	void createDirectory(String remotePath) throws IOException {
@@ -64,14 +71,6 @@ public class WebdavClient {
 
 		if (!sardine.exists(createUrl)) {
 			sardine.createDirectory(createUrl);
-		}
-	}
-
-	void delete(String remotePath) throws IOException {
-		String deleteUrl = url + remotePath;
-
-		if (sardine.exists(deleteUrl)) {
-			sardine.delete(deleteUrl);
 		}
 	}
 
