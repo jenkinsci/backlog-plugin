@@ -50,6 +50,7 @@ public class BacklogWebdavPublisher extends Notifier {
 
 		WebdavClient client = new WebdavClient(bpp.getSpaceURL() + "dav/"
 				+ bpp.getProject() + "/", bpp.userId, bpp.password);
+		client.setRemovePrefix(removePrefix);
 
 		String includes = build.getEnvironment(listener).expand(sourceFiles);
 		FilePath[] filePaths = build.getWorkspace().list(includes);

@@ -16,6 +16,8 @@ public class WebdavClient {
 
 	private final String url;
 
+	private String removePrefix = "";
+
 	public WebdavClient(String url, String username, String password) {
 		this.url = url;
 
@@ -37,11 +39,14 @@ public class WebdavClient {
 				HTTP.DEFAULT_CONTENT_TYPE, true);
 	}
 
+	// if i can
 	// TODO add option : multiple includes files
-	// TODO add option : 'removePrefix', like 'Publish over ~ plugin'
-	// TODO add option : put before delete directory
+	// TODO add option : flatten
+	// TODO implement : mkdir root directory
+	// (if can't, remote directory is required)
 
-	// TODO implement : deep directory with path
+	// TODO add option : delete dir before put
+	// TODO add option : remote directory is time format
 
 	public void putWithParent(FilePath filePath, String remotePath,
 			FilePath basePath) throws IOException, InterruptedException {
@@ -85,8 +90,31 @@ public class WebdavClient {
 			throws IOException, InterruptedException {
 		String pathString = filePath.toURI().normalize().getPath();
 		String baseString = basePath.toURI().normalize().getPath();
+		String pathFromBase = pathString.substring(baseString.length());
 
-		return pathString.substring(baseString.length());
+		String prefix;
+		if (!removePrefix.isEmpty() && removePrefix.charAt(0) == '/') {
+			prefix = removePrefix.substring(1);
+		} else {
+			prefix = removePrefix;
+		}
+
+		if (!pathFromBase.startsWith(prefix)) {
+			// TODO i18n
+			throw new IllegalArgumentException(
+					"If you use remove prefix, then ALL source file paths MUST start with the prefix.");
+		}
+		return pathFromBase.substring(prefix.length());
+	}
+
+	// -------------------------------------- getter/setter
+
+	public String getRemovePrefix() {
+		return removePrefix;
+	}
+
+	public void setRemovePrefix(String removePrefix) {
+		this.removePrefix = removePrefix;
 	}
 
 }
