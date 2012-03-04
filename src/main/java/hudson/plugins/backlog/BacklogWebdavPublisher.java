@@ -22,6 +22,9 @@ import org.kohsuke.stapler.DataBoundConstructor;
 
 public class BacklogWebdavPublisher extends Notifier {
 
+	// TODO confirm on slave
+	// TODO confirm on windows
+
 	private static final Log LOG = LogFactory
 			.getLog(BacklogWebdavPublisher.class);
 
@@ -46,34 +49,36 @@ public class BacklogWebdavPublisher extends Notifier {
 		return BuildStepMonitor.NONE;
 	}
 
-	// TODO confirm on slave
-	// TODO confirm on windows
-
 	@Override
 	public boolean perform(AbstractBuild<?, ?> build, Launcher launcher,
 			BuildListener listener) throws InterruptedException, IOException {
+
+		// skip if build is not success or unstable
 		if (build.getResult().isWorseThan(Result.UNSTABLE)) {
 			LOG.info("WebDAV Publisher is not performed because build is not success or unstable.");
 			return true;
 		}
 
+		// webdav client
 		BacklogProjectProperty bpp = build.getProject().getProperty(
 				BacklogProjectProperty.class);
-
 		WebdavClient client = new WebdavClient(bpp.getSpaceURL() + "dav/"
 				+ bpp.getProject() + "/", bpp.userId, bpp.password);
 		client.setRemovePrefixDirectory(removePrefixDirectory);
 
+		// remote directory, if specified date format
 		String directory = getFormattedRemoteDirectory(build, listener,
 				remoteDirectory);
 		LOG.debug("remote directory : " + directory);
 
-		if (deleteDirectoryBeforePublish) {
+		// delete remote directory
+		if (deleteDirectoryBeforePublish && !directory.isEmpty()) {
 			if (client.delete(directory)) {
 				LOG.debug("delete remote directory : " + directory);
 			}
 		}
 
+		// put target files to Backlog files
 		String includes = build.getEnvironment(listener).expand(sourceFiles);
 		for (FilePath filePath : build.getWorkspace().list(includes)) {
 			if (LOG.isDebugEnabled()) {

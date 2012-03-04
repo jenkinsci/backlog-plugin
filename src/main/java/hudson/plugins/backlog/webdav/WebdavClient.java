@@ -10,6 +10,9 @@ import org.apache.http.protocol.HTTP;
 import com.googlecode.sardine.SardineFactory;
 import com.googlecode.sardine.impl.SardineImpl;
 
+// TODO add option : multiple includes files
+// TODO add option : flatten
+
 public class WebdavClient {
 
 	private final SardineImpl sardine;
@@ -38,12 +41,6 @@ public class WebdavClient {
 		sardine.put(url + remotePath + filePath.getName(), entity,
 				HTTP.DEFAULT_CONTENT_TYPE, true);
 	}
-
-	// if i can
-	// TODO add option : multiple includes files
-	// TODO add option : flatten
-	// TODO implement : mkdir root directory
-	// (if can't, remote directory is required)
 
 	public void putWithParent(FilePath filePath, String remotePath,
 			FilePath basePath) throws IOException, InterruptedException {
