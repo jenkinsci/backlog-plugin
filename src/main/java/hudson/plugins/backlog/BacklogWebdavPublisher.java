@@ -26,18 +26,18 @@ public class BacklogWebdavPublisher extends Notifier {
 			.getLog(BacklogWebdavPublisher.class);
 
 	public final String sourceFiles;
-	public final String removePrefix;
 	public final String remoteDirectory;
+	public final String removePrefixDirectory;
 	public final boolean remoteDirectorySDF;
 	public final boolean deleteDirectoryBeforePublish;
 
 	@DataBoundConstructor
-	public BacklogWebdavPublisher(String sourceFiles, String removePrefix,
-			String remoteDirectory, boolean remoteDirectorySDF,
+	public BacklogWebdavPublisher(String sourceFiles, String remoteDirectory,
+			String removePrefixDirectory, boolean remoteDirectorySDF,
 			boolean deleteDirectoryBeforePublish) {
 		this.sourceFiles = sourceFiles;
-		this.removePrefix = removePrefix;
 		this.remoteDirectory = remoteDirectory;
+		this.removePrefixDirectory = removePrefixDirectory;
 		this.remoteDirectorySDF = remoteDirectorySDF;
 		this.deleteDirectoryBeforePublish = deleteDirectoryBeforePublish;
 	}
@@ -62,11 +62,10 @@ public class BacklogWebdavPublisher extends Notifier {
 
 		WebdavClient client = new WebdavClient(bpp.getSpaceURL() + "dav/"
 				+ bpp.getProject() + "/", bpp.userId, bpp.password);
-		client.setRemovePrefix(removePrefix);
+		client.setRemovePrefixDirectory(removePrefixDirectory);
 
-		String formattedDirectory = getFormattedRemoteDirectory(build,
-				listener, remoteDirectory);
-		String directory = addSuffixSlash(formattedDirectory);
+		String directory = getFormattedRemoteDirectory(build, listener,
+				remoteDirectory);
 		LOG.debug("remote directory : " + directory);
 
 		if (deleteDirectoryBeforePublish) {
@@ -97,14 +96,6 @@ public class BacklogWebdavPublisher extends Notifier {
 			return sdf.format(build.getTime());
 		} else {
 			return remoteDirectory;
-		}
-	}
-
-	private String addSuffixSlash(String remoteDirectory) {
-		if (remoteDirectory.endsWith("/")) {
-			return remoteDirectory;
-		} else {
-			return remoteDirectory + "/";
 		}
 	}
 

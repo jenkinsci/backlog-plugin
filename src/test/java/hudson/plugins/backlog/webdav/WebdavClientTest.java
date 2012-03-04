@@ -59,7 +59,7 @@ public class WebdavClientTest extends BaseTest {
 
 		@After
 		public void tearDown() {
-			client.setRemovePrefix("");
+			client.setRemovePrefixDirectory("");
 		}
 
 		@Test(expected = IllegalArgumentException.class)
@@ -75,15 +75,7 @@ public class WebdavClientTest extends BaseTest {
 
 		@Test
 		public void getPathFromBase_removePrefix() throws Exception {
-			client.setRemovePrefix("hudson/plugins/");
-
-			assertThat(client.getPathFromBase(filePath.getParent(), basePath),
-					is("backlog/webdav/"));
-		}
-
-		@Test
-		public void getPathFromBase_removePrefixWithSlash() throws Exception {
-			client.setRemovePrefix("/hudson/plugins/");
+			client.setRemovePrefixDirectory("/hudson/plugins/");
 
 			assertThat(client.getPathFromBase(filePath.getParent(), basePath),
 					is("backlog/webdav/"));
@@ -93,9 +85,31 @@ public class WebdavClientTest extends BaseTest {
 		public void getPathFromBase_notStartWithRemovePrefix() throws Exception {
 			FilePath filePath = new FilePath(new File("base/path/file"));
 			FilePath basePath = new FilePath(new File("base/"));
-			client.setRemovePrefix("bad_prefix/");
+			client.setRemovePrefixDirectory("bad_prefix/");
 
 			client.getPathFromBase(filePath, basePath);
+		}
+
+		@Test
+		public void normalizeRemovePrefixDirectory() throws Exception {
+			assertThat(client.normalizeRemovePrefixDirectory(""), is(""));
+
+			assertThat(client.normalizeRemovePrefixDirectory("/hoge/fuge/"),
+					is("hoge/fuge/"));
+
+			assertThat(client.normalizeRemovePrefixDirectory("hoge/fuge/"),
+					is("hoge/fuge/"));
+		}
+
+		@Test
+		public void normalizeDirectory() throws Exception {
+			assertThat(client.normalizeDirectory(""), is(""));
+
+			assertThat(client.normalizeDirectory("/hoge/fuge"),
+					is("/hoge/fuge/"));
+
+			assertThat(client.normalizeDirectory("/hoge/fuge/"),
+					is("/hoge/fuge/"));
 		}
 
 	}

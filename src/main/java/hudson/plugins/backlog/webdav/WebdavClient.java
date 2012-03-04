@@ -16,7 +16,7 @@ public class WebdavClient {
 
 	private final String url;
 
-	private String removePrefix = "";
+	private String removePrefixDirectory = "";
 
 	public WebdavClient(String url, String username, String password) {
 		this.url = url;
@@ -47,15 +47,16 @@ public class WebdavClient {
 
 	public void putWithParent(FilePath filePath, String remotePath,
 			FilePath basePath) throws IOException, InterruptedException {
-		createDirectory(remotePath);
-		createDirectoriesFromBase(filePath.getParent(), remotePath, basePath);
+		String directory = normalizeDirectory(remotePath);
 
+		createDirectory(directory);
+		createDirectoriesFromBase(filePath.getParent(), directory, basePath);
 		put(filePath,
-				remotePath + getPathFromBase(filePath.getParent(), basePath));
+				directory + getPathFromBase(filePath.getParent(), basePath));
 	}
 
 	public boolean delete(String remotePath) throws IOException {
-		String deleteUrl = url + remotePath;
+		String deleteUrl = normalizeDirectory(url + remotePath);
 
 		if (sardine.exists(deleteUrl)) {
 			sardine.delete(deleteUrl);
@@ -68,7 +69,7 @@ public class WebdavClient {
 	// -------------------------------------- helper method (package private)
 
 	void createDirectory(String remotePath) throws IOException {
-		String createUrl = url + remotePath;
+		String createUrl = normalizeDirectory(url + remotePath);
 
 		if (!sardine.exists(createUrl)) {
 			sardine.createDirectory(createUrl);
@@ -77,12 +78,12 @@ public class WebdavClient {
 
 	void createDirectoriesFromBase(FilePath filePath, String remotePath,
 			FilePath basePath) throws IOException, InterruptedException {
-		String remote = remotePath;
+		String parent = normalizeDirectory(remotePath);
 		String pathFromBaseDir = getPathFromBase(filePath, basePath);
 
 		for (String path : pathFromBaseDir.split("/")) {
-			remote = remote + path + "/";
-			createDirectory(remote);
+			parent = normalizeDirectory(parent + path);
+			createDirectory(parent);
 		}
 	}
 
@@ -92,29 +93,44 @@ public class WebdavClient {
 		String baseString = basePath.toURI().normalize().getPath();
 		String pathFromBase = pathString.substring(baseString.length());
 
-		String prefix;
-		if (!removePrefix.isEmpty() && removePrefix.charAt(0) == '/') {
-			prefix = removePrefix.substring(1);
-		} else {
-			prefix = removePrefix;
-		}
-
-		if (!pathFromBase.startsWith(prefix)) {
+		if (!pathFromBase
+				.startsWith(normalizeRemovePrefixDirectory(removePrefixDirectory))) {
 			// TODO i18n
 			throw new IllegalArgumentException(
 					"If you use remove prefix, then ALL source file paths MUST start with the prefix.");
 		}
-		return pathFromBase.substring(prefix.length());
+		return pathFromBase.substring(normalizeRemovePrefixDirectory(
+				removePrefixDirectory).length());
+	}
+
+	String normalizeRemovePrefixDirectory(String directory) {
+		if (directory.isEmpty()) {
+			return normalizeDirectory(directory);
+		} else if (directory.startsWith("/")) {
+			return normalizeDirectory(directory.substring(1));
+		} else {
+			return normalizeDirectory(directory);
+		}
+	}
+
+	String normalizeDirectory(String directory) {
+		if (directory.isEmpty()) {
+			return directory;
+		} else if (directory.endsWith("/")) {
+			return directory;
+		} else {
+			return directory + "/";
+		}
 	}
 
 	// -------------------------------------- getter/setter
 
-	public String getRemovePrefix() {
-		return removePrefix;
+	public String getRemovePrefixDirectory() {
+		return removePrefixDirectory;
 	}
 
-	public void setRemovePrefix(String removePrefix) {
-		this.removePrefix = removePrefix;
+	public void setRemovePrefixDirectory(String removePrefixDirectory) {
+		this.removePrefixDirectory = removePrefixDirectory;
 	}
 
 }

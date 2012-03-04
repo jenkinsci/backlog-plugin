@@ -28,20 +28,16 @@ THE SOFTWARE.
     <f:textbox />
   </f:entry>
   
-  <f:entry title="Remove prefix" field="removePrefix">
-    <f:textbox />
-  </f:entry>
-  
   <f:entry title="Remote directory" field="remoteDirectory">
     <f:textbox />
   </f:entry>
   
   <f:advanced>
-  
-    <f:entry title="Flatten files" field="flatten">
-      <f:checkbox />
+
+    <f:entry title="Remove prefix directory" field="removePrefixDirectory">
+      <f:textbox />
     </f:entry>
-        
+  
     <f:entry title="Remote directory is a date format" field="remoteDirectorySDF">
       <f:checkbox />
     </f:entry>
@@ -49,6 +45,12 @@ THE SOFTWARE.
     <f:entry title="Delete Remote directory before publish" field="deleteDirectoryBeforePublish">
       <f:checkbox />
     </f:entry>
+        
+<!--  
+    <f:entry title="Flatten files" field="flatten">
+      <f:checkbox />
+    </f:entry>
+-->
         
   </f:advanced>
   
