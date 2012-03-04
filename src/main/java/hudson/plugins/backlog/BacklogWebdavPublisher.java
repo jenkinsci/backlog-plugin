@@ -14,6 +14,7 @@ import hudson.tasks.Notifier;
 import hudson.tasks.Publisher;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -27,14 +28,17 @@ public class BacklogWebdavPublisher extends Notifier {
 	public final String sourceFiles;
 	public final String removePrefix;
 	public final String remoteDirectory;
+	public final boolean remoteDirectorySDF;
 	public final boolean deleteDirectoryBeforePublish;
 
 	@DataBoundConstructor
 	public BacklogWebdavPublisher(String sourceFiles, String removePrefix,
-			String remoteDirectory, boolean deleteDirectoryBeforePublish) {
+			String remoteDirectory, boolean remoteDirectorySDF,
+			boolean deleteDirectoryBeforePublish) {
 		this.sourceFiles = sourceFiles;
 		this.removePrefix = removePrefix;
 		this.remoteDirectory = remoteDirectory;
+		this.remoteDirectorySDF = remoteDirectorySDF;
 		this.deleteDirectoryBeforePublish = deleteDirectoryBeforePublish;
 	}
 
@@ -60,9 +64,15 @@ public class BacklogWebdavPublisher extends Notifier {
 				+ bpp.getProject() + "/", bpp.userId, bpp.password);
 		client.setRemovePrefix(removePrefix);
 
+		String formattedDirectory = getFormattedRemoteDirectory(build,
+				listener, remoteDirectory);
+		String directory = addSuffixSlash(formattedDirectory);
+		LOG.debug("remote directory : " + directory);
+
 		if (deleteDirectoryBeforePublish) {
-			LOG.debug("delete directory : " + getRemoteDirectoryWithSlash());
-			client.delete(getRemoteDirectoryWithSlash());
+			if (client.delete(directory)) {
+				LOG.debug("delete remote directory : " + directory);
+			}
 		}
 
 		String includes = build.getEnvironment(listener).expand(sourceFiles);
@@ -70,14 +80,27 @@ public class BacklogWebdavPublisher extends Notifier {
 			if (LOG.isDebugEnabled()) {
 				LOG.debug("put file : " + filePath);
 			}
-			client.putWithParent(filePath, getRemoteDirectoryWithSlash(),
-					build.getWorkspace());
+			client.putWithParent(filePath, directory, build.getWorkspace());
 		}
 
 		return true;
 	}
 
-	private String getRemoteDirectoryWithSlash() {
+	private String getFormattedRemoteDirectory(AbstractBuild<?, ?> build,
+			BuildListener listener, String remoteDirectory) throws IOException,
+			InterruptedException {
+		if (remoteDirectorySDF) {
+			String expandRemoteDirectory = build.getEnvironment(listener)
+					.expand(remoteDirectory);
+			SimpleDateFormat sdf = new SimpleDateFormat(expandRemoteDirectory);
+
+			return sdf.format(build.getTime());
+		} else {
+			return remoteDirectory;
+		}
+	}
+
+	private String addSuffixSlash(String remoteDirectory) {
 		if (remoteDirectory.endsWith("/")) {
 			return remoteDirectory;
 		} else {
