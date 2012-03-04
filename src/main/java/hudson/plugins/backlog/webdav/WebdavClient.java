@@ -46,7 +46,7 @@ public class WebdavClient {
 			FilePath basePath) throws IOException, InterruptedException {
 		String directory = normalizeDirectory(remotePath);
 
-		createDirectory(directory);
+		createDirectoriesRecursive("", directory);
 		createDirectoriesFromBase(filePath.getParent(), directory, basePath);
 		put(filePath,
 				directory + getPathFromBase(filePath.getParent(), basePath));
@@ -75,11 +75,18 @@ public class WebdavClient {
 
 	void createDirectoriesFromBase(FilePath filePath, String remotePath,
 			FilePath basePath) throws IOException, InterruptedException {
-		String parent = normalizeDirectory(remotePath);
-		String pathFromBaseDir = getPathFromBase(filePath, basePath);
+		createDirectoriesRecursive(remotePath,
+				getPathFromBase(filePath, basePath));
+	}
 
-		for (String path : pathFromBaseDir.split("/")) {
-			parent = normalizeDirectory(parent + path);
+	void createDirectoriesRecursive(String base, String path)
+			throws IOException {
+
+		String parent = normalizeDirectory(base);
+		createDirectory(parent);
+
+		for (String splitPath : path.split("/")) {
+			parent = normalizeDirectory(parent + splitPath);
 			createDirectory(parent);
 		}
 	}
@@ -90,34 +97,32 @@ public class WebdavClient {
 		String baseString = basePath.toURI().normalize().getPath();
 		String pathFromBase = pathString.substring(baseString.length());
 
-		if (!pathFromBase
-				.startsWith(normalizeRemovePrefixDirectory(removePrefixDirectory))) {
+		if (!pathFromBase.startsWith(normalizeDirectory(removePrefixDirectory))) {
 			// TODO i18n
 			throw new IllegalArgumentException(
 					"If you use remove prefix, then ALL source file paths MUST start with the prefix.");
 		}
-		return pathFromBase.substring(normalizeRemovePrefixDirectory(
-				removePrefixDirectory).length());
-	}
-
-	String normalizeRemovePrefixDirectory(String directory) {
-		if (directory.isEmpty()) {
-			return normalizeDirectory(directory);
-		} else if (directory.startsWith("/")) {
-			return normalizeDirectory(directory.substring(1));
-		} else {
-			return normalizeDirectory(directory);
-		}
+		return pathFromBase.substring(normalizeDirectory(removePrefixDirectory)
+				.length());
 	}
 
 	String normalizeDirectory(String directory) {
 		if (directory.isEmpty()) {
 			return directory;
-		} else if (directory.endsWith("/")) {
-			return directory;
-		} else {
-			return directory + "/";
 		}
+
+		String result;
+		if (directory.startsWith("/")) {
+			result = directory.substring(1);
+		} else {
+			result = directory;
+		}
+
+		if (!directory.endsWith("/")) {
+			result = result + "/";
+		}
+
+		return result;
 	}
 
 	// -------------------------------------- getter/setter

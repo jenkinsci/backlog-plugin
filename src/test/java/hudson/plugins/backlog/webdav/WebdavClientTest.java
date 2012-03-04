@@ -91,25 +91,18 @@ public class WebdavClientTest extends BaseTest {
 		}
 
 		@Test
-		public void normalizeRemovePrefixDirectory() throws Exception {
-			assertThat(client.normalizeRemovePrefixDirectory(""), is(""));
-
-			assertThat(client.normalizeRemovePrefixDirectory("/hoge/fuge/"),
-					is("hoge/fuge/"));
-
-			assertThat(client.normalizeRemovePrefixDirectory("hoge/fuge/"),
-					is("hoge/fuge/"));
-		}
-
-		@Test
 		public void normalizeDirectory() throws Exception {
+			String expected = "hoge/fuge/";
+
 			assertThat(client.normalizeDirectory(""), is(""));
 
-			assertThat(client.normalizeDirectory("/hoge/fuge"),
-					is("/hoge/fuge/"));
+			assertThat(client.normalizeDirectory("/hoge/fuge/"), is(expected));
 
-			assertThat(client.normalizeDirectory("/hoge/fuge/"),
-					is("/hoge/fuge/"));
+			assertThat(client.normalizeDirectory("/hoge/fuge"), is(expected));
+
+			assertThat(client.normalizeDirectory("hoge/fuge/"), is(expected));
+
+			assertThat(client.normalizeDirectory("hoge/fuge"), is(expected));
 		}
 
 	}
