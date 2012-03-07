@@ -22,8 +22,10 @@ import org.kohsuke.stapler.DataBoundConstructor;
 
 public class BacklogWebdavPublisher extends Notifier {
 
+	// TODO add option : multiple includes files
+	// TODO add option : flatten
+
 	// TODO add required field check
-	// TODO add listener print when start
 
 	private static final Log LOG = LogFactory
 			.getLog(BacklogWebdavPublisher.class);
@@ -58,6 +60,9 @@ public class BacklogWebdavPublisher extends Notifier {
 			LOG.info("WebDAV Publisher is not performed because build is not success or unstable.");
 			return true;
 		}
+
+		listener.getLogger().println(
+				Messages.BacklogWebdavPublisher_StartPublish());
 
 		// webdav client
 		BacklogProjectProperty bpp = build.getProject().getProperty(
