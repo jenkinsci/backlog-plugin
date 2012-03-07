@@ -83,9 +83,17 @@ public class BacklogWebdavPublisher extends Notifier {
 			}
 		}
 
-		// put target files to Backlog files
+		// list files from pattern
 		String includes = build.getEnvironment(listener).expand(sourceFiles);
-		for (FilePath filePath : build.getWorkspace().list(includes)) {
+		FilePath[] filePaths = build.getWorkspace().list(includes);
+		if (filePaths.length == 0) {
+			listener.getLogger().println(
+					Messages.BacklogWebdavPublisher_NoMatchFound(sourceFiles));
+			return true;
+		}
+
+		// publish files to Backlog files
+		for (FilePath filePath : filePaths) {
 			if (LOG.isDebugEnabled()) {
 				LOG.debug("put file : " + filePath);
 			}
