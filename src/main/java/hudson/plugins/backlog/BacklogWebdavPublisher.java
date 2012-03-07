@@ -12,6 +12,7 @@ import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Notifier;
 import hudson.tasks.Publisher;
+import hudson.util.FormValidation;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -19,13 +20,12 @@ import java.text.SimpleDateFormat;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.QueryParameter;
 
 public class BacklogWebdavPublisher extends Notifier {
 
 	// TODO add option : multiple includes files
 	// TODO add option : flatten
-
-	// TODO add required field check
 
 	private static final Log LOG = LogFactory
 			.getLog(BacklogWebdavPublisher.class);
@@ -121,6 +121,10 @@ public class BacklogWebdavPublisher extends Notifier {
 		@Override
 		public String getDisplayName() {
 			return Messages.BacklogWebdavPublisher_DisplayName();
+		}
+
+		public FormValidation doCheckSourceFiles(@QueryParameter String value) {
+			return FormValidation.validateRequired(value);
 		}
 
 	}
