@@ -24,30 +24,30 @@ THE SOFTWARE.
 
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
 
-  <f:entry title="Source files" field="sourceFiles">
+  <f:entry title="${%Source files}" field="sourceFiles">
     <f:textbox />
   </f:entry>
   
-  <f:entry title="Remote directory" field="remoteDirectory">
+  <f:entry title="${%Remote directory}" field="remoteDirectory">
     <f:textbox />
   </f:entry>
   
   <f:advanced>
 
-    <f:entry title="Remove prefix directory" field="removePrefixDirectory">
+    <f:entry title="${%Remove prefix}" field="removePrefix">
       <f:textbox />
     </f:entry>
   
-    <f:entry title="Remote directory is a date format" field="remoteDirectorySDF">
+    <f:entry title="${%Remote directory is a date format}" field="remoteDirectorySDF">
       <f:checkbox />
     </f:entry>
     
-    <f:entry title="Delete Remote directory before publish" field="deleteDirectoryBeforePublish">
+    <f:entry title="${%Delete Remote directory before publish}" field="deleteDirectoryBeforePublish">
       <f:checkbox />
     </f:entry>
         
 <!--  
-    <f:entry title="Flatten files" field="flatten">
+    <f:entry title="${%Flatten files}" field="flatten">
       <f:checkbox />
     </f:entry>
 -->

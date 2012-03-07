@@ -1,0 +1,10 @@
+<div>
+    <p>First part of the file path that should not be created on the remote server.</p>
+    
+    <p>Directory structures are created relative to the base directory, which is usually the workspace.
+    You normally do not want the full path to these files to be created on the server.
+    For example if Source files were <code>target/deployment/images/**/</code> then you may want Remove prefix to be <code>target/deployment</code>.
+    This would create the images folder under the remote directory, and not target/deployment.</p>
+    
+    <p><strong>If you use remove prefix, then ALL source file paths MUST start with the prefix.</strong></p>
+</div>

@@ -59,7 +59,7 @@ public class WebdavClientTest extends BaseTest {
 
 		@After
 		public void tearDown() {
-			client.setRemovePrefixDirectory("");
+			client.setRemovePrefix("");
 		}
 
 		@Test(expected = IllegalArgumentException.class)
@@ -75,7 +75,7 @@ public class WebdavClientTest extends BaseTest {
 
 		@Test
 		public void getPathFromBase_removePrefix() throws Exception {
-			client.setRemovePrefixDirectory("/hudson/plugins/");
+			client.setRemovePrefix("/hudson/plugins/");
 
 			assertThat(client.getPathFromBase(filePath.getParent(), basePath),
 					is("backlog/webdav/"));
@@ -85,7 +85,7 @@ public class WebdavClientTest extends BaseTest {
 		public void getPathFromBase_notStartWithRemovePrefix() throws Exception {
 			FilePath filePath = new FilePath(new File("base/path/file"));
 			FilePath basePath = new FilePath(new File("base/"));
-			client.setRemovePrefixDirectory("bad_prefix/");
+			client.setRemovePrefix("bad_prefix/");
 
 			client.getPathFromBase(filePath, basePath);
 		}

@@ -1,0 +1,38 @@
+<div>
+
+<p>
+  リモートディレクトリにビルド時のタイムスタンプを埋め込みます。
+</p>
+
+<p>
+  リモートディレクトリに指定された文字列を、JavaのSimpleDateFormatで変換します。
+  SimpleDateFormatの詳細は、<a href="http://java.sun.com/javase/ja/6/docs/ja/api/java/text/SimpleDateFormat.html">Javadoc</a>を参照ください。
+</p>    
+    
+<p>
+  下記に例をいくつか示します。この例では"2010/11/07 15:45:55"にビルドされたものと仮定します。
+  <table>
+  <tr>
+    <th>リモートディレクトリ</th>
+    <th>作成されるディレクトリ</th>
+  </tr>
+  <tr>
+    <td><code>'qa-approved/'yyyyMMddHHmmss</code></td>
+    <td><code>qa-approved/20101107154555</code></td>
+  </tr>
+  <tr>
+    <td><code>'builds/'yyyy/MM/dd/'build-${BUILD_NUMBER}'</code></td>
+    <td><code>builds/2010/11/07/build-456</code>（ビルド番号が456の場合）</td>
+  </tr>
+  <tr>
+    <td><code>yyyy_MM/'build'-EEE-d-HHmmss</code></td>
+    <td><code>2010_11/build-Sun-7-154555</code></td>
+  </tr>
+  <tr>
+    <td><code>yyyy-MM-dd_HH-mm-ss</code></td>
+    <td><code>2010-11-07_15-45-55</code></td>
+  </tr>
+  </table>
+</p>
+  
+</div>

@@ -1,6 +1,7 @@
 package hudson.plugins.backlog.webdav;
 
 import hudson.FilePath;
+import hudson.plugins.backlog.Messages;
 
 import java.io.IOException;
 
@@ -19,7 +20,7 @@ public class WebdavClient {
 
 	private final String url;
 
-	private String removePrefixDirectory = "";
+	private String removePrefix = "";
 
 	public WebdavClient(String url, String username, String password) {
 		this.url = url;
@@ -97,13 +98,13 @@ public class WebdavClient {
 		String baseString = basePath.toURI().normalize().getPath();
 		String pathFromBase = pathString.substring(baseString.length());
 
-		if (!pathFromBase.startsWith(normalizeDirectory(removePrefixDirectory))) {
-			// TODO i18n
+		if (!pathFromBase.startsWith(normalizeDirectory(removePrefix))) {
 			throw new IllegalArgumentException(
-					"If you use remove prefix, then ALL source file paths MUST start with the prefix.");
+					Messages.BacklogWebdavPublisher_ErrorNotStartedPrefix(
+							pathFromBase, removePrefix));
 		}
-		return pathFromBase.substring(normalizeDirectory(removePrefixDirectory)
-				.length());
+		return pathFromBase
+				.substring(normalizeDirectory(removePrefix).length());
 	}
 
 	String normalizeDirectory(String directory) {
@@ -127,12 +128,12 @@ public class WebdavClient {
 
 	// -------------------------------------- getter/setter
 
-	public String getRemovePrefixDirectory() {
-		return removePrefixDirectory;
+	public String getRemovePrefix() {
+		return removePrefix;
 	}
 
-	public void setRemovePrefixDirectory(String removePrefixDirectory) {
-		this.removePrefixDirectory = removePrefixDirectory;
+	public void setRemovePrefix(String removePrefix) {
+		this.removePrefix = removePrefix;
 	}
 
 }

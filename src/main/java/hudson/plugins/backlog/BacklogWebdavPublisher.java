@@ -22,25 +22,25 @@ import org.kohsuke.stapler.DataBoundConstructor;
 
 public class BacklogWebdavPublisher extends Notifier {
 
-	// TODO confirm on slave
-	// TODO confirm on windows
+	// TODO add required field check
+	// TODO add listener print when start
 
 	private static final Log LOG = LogFactory
 			.getLog(BacklogWebdavPublisher.class);
 
 	public final String sourceFiles;
 	public final String remoteDirectory;
-	public final String removePrefixDirectory;
+	public final String removePrefix;
 	public final boolean remoteDirectorySDF;
 	public final boolean deleteDirectoryBeforePublish;
 
 	@DataBoundConstructor
 	public BacklogWebdavPublisher(String sourceFiles, String remoteDirectory,
-			String removePrefixDirectory, boolean remoteDirectorySDF,
+			String removePrefix, boolean remoteDirectorySDF,
 			boolean deleteDirectoryBeforePublish) {
 		this.sourceFiles = sourceFiles;
 		this.remoteDirectory = remoteDirectory;
-		this.removePrefixDirectory = removePrefixDirectory;
+		this.removePrefix = removePrefix;
 		this.remoteDirectorySDF = remoteDirectorySDF;
 		this.deleteDirectoryBeforePublish = deleteDirectoryBeforePublish;
 	}
@@ -64,7 +64,7 @@ public class BacklogWebdavPublisher extends Notifier {
 				BacklogProjectProperty.class);
 		WebdavClient client = new WebdavClient(bpp.getSpaceURL() + "dav/"
 				+ bpp.getProject() + "/", bpp.userId, bpp.password);
-		client.setRemovePrefixDirectory(removePrefixDirectory);
+		client.setRemovePrefix(removePrefix);
 
 		// remote directory, if specified date format
 		String directory = getFormattedRemoteDirectory(build, listener,
@@ -115,7 +115,7 @@ public class BacklogWebdavPublisher extends Notifier {
 
 		@Override
 		public String getDisplayName() {
-			return "Backlog Publisher to File";
+			return Messages.BacklogWebdavPublisher_DisplayName();
 		}
 
 	}
