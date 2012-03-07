@@ -1,4 +1,4 @@
-package hudson.plugins.backlog.api;
+package hudson.plugins.backlog.base;
 
 import java.io.InputStream;
 import java.util.Properties;
@@ -12,7 +12,6 @@ public abstract class BaseTest {
 	protected static String BACKLOG_PASSWORD;
 	protected static int BACKLOG_PROJECT_ID;
 	protected static String BACKLOG_PROJECT_KEY;
-	protected static String BACKLOG_USER_NAME;
 
 	@BeforeClass
 	public static void setUpClass() throws Exception {
@@ -23,12 +22,12 @@ public abstract class BaseTest {
 		final Properties properties = new Properties();
 
 		// プロパティファイル（テンプレート）の読込
-		final InputStream propertyFileTemplate = BacklogApiClientTest.class
-				.getResourceAsStream("template.backlogApiClient.properties");
+		final InputStream propertyFileTemplate = BaseTest.class
+				.getResourceAsStream("template.base.properties");
 		properties.load(propertyFileTemplate);
 		// 存在するならば、プロパティファイル（ユーザ固有）の読込
-		final InputStream propertyFile = BacklogApiClientTest.class
-				.getResourceAsStream("backlogApiClient.properties");
+		final InputStream propertyFile = BaseTest.class
+				.getResourceAsStream("base.properties");
 		if (propertyFile != null) {
 			properties.load(propertyFile);
 		}
@@ -39,7 +38,6 @@ public abstract class BaseTest {
 		BACKLOG_PROJECT_ID = Integer.valueOf(properties
 				.getProperty("PROJECT_ID"));
 		BACKLOG_PROJECT_KEY = properties.getProperty("PROJECT_KEY");
-		BACKLOG_USER_NAME = properties.getProperty("USER_NAME");
 	}
 
 }

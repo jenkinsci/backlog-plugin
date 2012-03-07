@@ -3,7 +3,7 @@ package hudson.plugins.backlog.webdav;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 import hudson.FilePath;
-import hudson.plugins.backlog.api.BaseTest;
+import hudson.plugins.backlog.base.BaseTest;
 
 import java.io.BufferedReader;
 import java.io.File;

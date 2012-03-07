@@ -6,6 +6,7 @@ import static org.junit.Assert.assertThat;
 import hudson.plugins.backlog.api.entity.Issue;
 import hudson.plugins.backlog.api.entity.Project;
 import hudson.plugins.backlog.api.entity.User;
+import hudson.plugins.backlog.base.BaseTest;
 
 import org.junit.Before;
 import org.junit.Ignore;
