@@ -69,7 +69,10 @@ public class BacklogWebdavPublisher extends Notifier {
 				BacklogProjectProperty.class);
 		WebdavClient client = new WebdavClient(bpp.getSpaceURL() + "dav/"
 				+ bpp.getProject() + "/", bpp.userId, bpp.password);
-		client.setRemovePrefix(removePrefix);
+
+		// set remove prefix
+		String prefix = build.getEnvironment(listener).expand(removePrefix);
+		client.setRemovePrefix(prefix);
 
 		// remote directory, if specified date format
 		String directory = getFormattedRemoteDirectory(build, listener,
@@ -84,8 +87,8 @@ public class BacklogWebdavPublisher extends Notifier {
 		}
 
 		// list files from pattern
-		String includes = build.getEnvironment(listener).expand(sourceFiles);
-		FilePath[] filePaths = build.getWorkspace().list(includes);
+		String sources = build.getEnvironment(listener).expand(sourceFiles);
+		FilePath[] filePaths = build.getWorkspace().list(sources);
 		if (filePaths.length == 0) {
 			listener.getLogger().println(
 					Messages.BacklogWebdavPublisher_NoMatchFound(sourceFiles));
