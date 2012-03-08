@@ -51,7 +51,7 @@ public class WebdavClient {
 	}
 
 	public boolean delete(String remotePath) throws IOException {
-		String deleteUrl = normalizeDirectory(url + remotePath);
+		String deleteUrl = url + normalizeDirectory(remotePath);
 
 		if (sardine.exists(deleteUrl)) {
 			sardine.delete(deleteUrl);
