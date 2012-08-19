@@ -68,6 +68,11 @@
     	<version>1.6.4</version>
     	<scope>runtime</scope>
     </dependency>
+    <dependency>
+    	<groupId>org.jenkinsci.plugins</groupId>
+    	<artifactId>git</artifactId>
+    	<version>1.1.22</version>
+    </dependency>
   </dependencies>
 
   <repositories>
@@ -80,8 +85,12 @@
       <name>Sardine maven repo at Google Code</name>
       <url>http://sardine.googlecode.com/svn/maven/</url>
     </repository>
+    <repository>
+      <id>jgit-repository</id>
+      <name>Eclipse JGit Repository</name>
+      <url>http://download.eclipse.org/jgit/maven</url>
+    </repository>
   </repositories>
-
 
     <pluginRepositories>
         <pluginRepository>
