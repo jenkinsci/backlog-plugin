@@ -1,8 +1,8 @@
 package hudson.plugins.backlog;
 
 import hudson.Extension;
-import hudson.model.AbstractProject;
 import hudson.model.Descriptor;
+import hudson.plugins.backlog.repositorybrowser.RepositoryBrowserHelper;
 import hudson.scm.EditType;
 import hudson.scm.RepositoryBrowser;
 import hudson.scm.SubversionRepositoryBrowser;
@@ -13,9 +13,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.net.URLEncoder;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 /**
@@ -25,9 +22,6 @@ import org.kohsuke.stapler.DataBoundConstructor;
  */
 public class BacklogRepositoryBrowser extends SubversionRepositoryBrowser {
 
-	private static final Log LOG = LogFactory
-			.getLog(BacklogRepositoryBrowser.class);
-
 	public final String url;
 
 	@DataBoundConstructor
@@ -35,65 +29,17 @@ public class BacklogRepositoryBrowser extends SubversionRepositoryBrowser {
 		this.url = url;
 	}
 
-	/**
-	 * Gets a Backlog project property configured for the current project.
-	 */
-	BacklogProjectProperty getProjectProperty(LogEntry cs) {
-		AbstractProject<?, ?> p = (AbstractProject<?, ?>) cs.getParent().build
-				.getProject();
-
-		return p.getProperty(BacklogProjectProperty.class);
-	}
-
-	String getSpaceURL(LogEntry cs) {
-		if (isDefaultSvnUrl()) {
-			BacklogProjectProperty property = getProjectProperty(cs);
-			if (property == null || property.getSpaceURL() == null) {
-				LOG.warn("BacklogProjectProperty is null or BacklogProjectProperty's spaceURL is null");
-				return null;
-			}
-			return property.getSpaceURL();
-
-		} else {
-			if (!url.contains("/projects/")) {
-				LOG.warn("Option project url is not correct");
-				return null;
-			}
-			return url.substring(0, url.indexOf("/projects/") + 1);
-		}
-	}
-
-	String getProject(LogEntry cs) {
-		if (isDefaultSvnUrl()) {
-			BacklogProjectProperty property = getProjectProperty(cs);
-			if (property == null || property.getProject() == null) {
-				LOG.warn("BacklogProjectProperty is null or BacklogProjectProperty's project is null");
-				return null;
-			}
-			return property.getProject();
-
-		} else {
-			if (!url.contains("/projects/")) {
-				LOG.warn("Option project url is not correct");
-				return null;
-			}
-			return url.substring(url.indexOf("/projects/")
-					+ "/projects/".length());
-		}
-	}
-
-	boolean isDefaultSvnUrl() {
-		return StringUtils.isEmpty(url);
-	}
-
 	@Override
 	public URL getDiffLink(Path path) throws IOException {
+		RepositoryBrowserHelper helper = new RepositoryBrowserHelper(url);
+
 		if (path.getEditType() != EditType.EDIT) {
 			return null; // no diff if this is not an edit change
 		}
 
 		LogEntry logEntry = path.getLogEntry();
-		if (getSpaceURL(logEntry) == null || getProject(logEntry) == null) {
+		if (helper.getSpaceURL(logEntry) == null
+				|| helper.getProject(logEntry) == null) {
 			return null;
 		}
 
@@ -105,20 +51,23 @@ public class BacklogRepositoryBrowser extends SubversionRepositoryBrowser {
 		}
 		String encodedPath = URLEncoder.encode(filePath, "UTF-8");
 
-		return new URL(getSpaceURL(logEntry) + "ViewRepositoryFileDiff.action"
-				+ "?projectKey=" + getProject(logEntry) + "&path="
-				+ encodedPath + "&fromRevision=" + "-1" + "&toRevision="
-				+ revision);
+		return new URL(helper.getSpaceURL(logEntry)
+				+ "ViewRepositoryFileDiff.action" + "?projectKey="
+				+ helper.getProject(logEntry) + "&path=" + encodedPath
+				+ "&fromRevision=" + "-1" + "&toRevision=" + revision);
 	}
 
 	@Override
 	public URL getFileLink(Path path) throws IOException {
+		RepositoryBrowserHelper helper = new RepositoryBrowserHelper(url);
+
 		if (path.getEditType() == EditType.DELETE) {
 			return null;
 		}
 
 		LogEntry logEntry = path.getLogEntry();
-		if (getSpaceURL(logEntry) == null || getProject(logEntry) == null) {
+		if (helper.getSpaceURL(logEntry) == null
+				|| helper.getProject(logEntry) == null) {
 			return null;
 		}
 
@@ -130,19 +79,23 @@ public class BacklogRepositoryBrowser extends SubversionRepositoryBrowser {
 		}
 		String encodedPath = URLEncoder.encode(filePath, "UTF-8");
 
-		return new URL(getSpaceURL(logEntry) + "ViewRepositoryFile.action"
-				+ "?projectKey=" + getProject(logEntry) + "&r=" + revision
-				+ "&path=" + encodedPath);
+		return new URL(helper.getSpaceURL(logEntry)
+				+ "ViewRepositoryFile.action" + "?projectKey="
+				+ helper.getProject(logEntry) + "&r=" + revision + "&path="
+				+ encodedPath);
 	}
 
 	@Override
 	public URL getChangeSetLink(LogEntry changeSet) throws IOException {
-		if (getSpaceURL(changeSet) == null || getProject(changeSet) == null) {
+		RepositoryBrowserHelper helper = new RepositoryBrowserHelper(url);
+
+		if (helper.getSpaceURL(changeSet) == null
+				|| helper.getProject(changeSet) == null) {
 			return null;
 		}
 
-		return new URL(getSpaceURL(changeSet) + "rev/" + getProject(changeSet)
-				+ "/" + changeSet.getRevision());
+		return new URL(helper.getSpaceURL(changeSet) + "rev/"
+				+ helper.getProject(changeSet) + "/" + changeSet.getRevision());
 	}
 
 	@Extension
