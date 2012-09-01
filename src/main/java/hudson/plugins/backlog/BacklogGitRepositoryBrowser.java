@@ -22,13 +22,13 @@ import org.kohsuke.stapler.DataBoundConstructor;
  */
 public class BacklogGitRepositoryBrowser extends GitRepositoryBrowser {
 
-	// TODO receive repo name
-	private static String repoName = "backlog-plugin-test";
+	public final String repoName;
 
 	public final String url;
 
 	@DataBoundConstructor
-	public BacklogGitRepositoryBrowser(String url) {
+	public BacklogGitRepositoryBrowser(String repoName, String url) {
+		this.repoName = repoName;
 		this.url = url;
 	}
 
@@ -51,8 +51,6 @@ public class BacklogGitRepositoryBrowser extends GitRepositoryBrowser {
 			filePath = filePath.substring(1);
 		}
 		String encodedPath = URLEncoder.encode(filePath, "UTF-8");
-
-		// TODO what is commit id when merge commit ?
 
 		return new URL(helper.getSpaceURL(logEntry) + "git/"
 				+ helper.getProject(logEntry) + "/" + repoName + "/diff/"
