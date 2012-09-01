@@ -43,8 +43,6 @@ public class BacklogRepositoryBrowser extends SubversionRepositoryBrowser {
 			return null;
 		}
 
-		int revision = path.getLogEntry().getRevision();
-
 		String filePath = path.getPath();
 		if (filePath.startsWith("/")) {
 			filePath = filePath.substring(1);
@@ -54,7 +52,8 @@ public class BacklogRepositoryBrowser extends SubversionRepositoryBrowser {
 		return new URL(helper.getSpaceURL(logEntry)
 				+ "ViewRepositoryFileDiff.action" + "?projectKey="
 				+ helper.getProject(logEntry) + "&path=" + encodedPath
-				+ "&fromRevision=" + "-1" + "&toRevision=" + revision);
+				+ "&fromRevision=" + "-1" + "&toRevision="
+				+ logEntry.getRevision());
 	}
 
 	@Override
@@ -71,8 +70,6 @@ public class BacklogRepositoryBrowser extends SubversionRepositoryBrowser {
 			return null;
 		}
 
-		int revision = path.getLogEntry().getRevision();
-
 		String filePath = path.getPath();
 		if (filePath.startsWith("/")) {
 			filePath = filePath.substring(1);
@@ -81,8 +78,8 @@ public class BacklogRepositoryBrowser extends SubversionRepositoryBrowser {
 
 		return new URL(helper.getSpaceURL(logEntry)
 				+ "ViewRepositoryFile.action" + "?projectKey="
-				+ helper.getProject(logEntry) + "&r=" + revision + "&path="
-				+ encodedPath);
+				+ helper.getProject(logEntry) + "&r=" + logEntry.getRevision()
+				+ "&path=" + encodedPath);
 	}
 
 	@Override
