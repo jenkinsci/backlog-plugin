@@ -95,7 +95,7 @@ public class BacklogRepositoryBrowser extends SubversionRepositoryBrowser {
 				+ helper.getProject(changeSet) + "/" + changeSet.getRevision());
 	}
 
-	@Extension
+	@Extension(optional = true)
 	public static final class DescriptorImpl extends
 			Descriptor<RepositoryBrowser<?>> {
 		public DescriptorImpl() {
