@@ -27,7 +27,7 @@ public class BacklogChangelogAnnotator extends ChangeLogAnnotator {
 			.getLog(BacklogChangelogAnnotator.class);
 
 	public static final Pattern ISSUE_KEY_PATTERN = Pattern
-			.compile("(?:(?<![/A-Z0-9a-z-])([A-Z0-9]+-[1-9][0-9]*)|\\[\\[([A-Z0-9]+-[1-9][0-9]*)\\]\\])");
+			.compile("(?:(?<![/A-Z0-9a-z-_])([A-Z0-9_]+-[1-9][0-9]*)|\\[\\[([A-Z0-9_]+-[1-9][0-9]*)\\]\\])");
 
 	@Override
 	public void annotate(AbstractBuild<?, ?> build, Entry change,
