@@ -66,7 +66,7 @@ public class BacklogWebdavPublisher extends Notifier {
 				BacklogProjectProperty.class);
 		if (bpp == null || bpp.getSpaceURL() == null
 				|| bpp.getProject() == null || bpp.userId.isEmpty()
-				|| bpp.password.isEmpty()) {
+				|| bpp.getPassword().isEmpty()) {
 			LOG.warn("BacklogProjectProperty settings is required when publishing to files.");
 			return true;
 		}
@@ -75,8 +75,8 @@ public class BacklogWebdavPublisher extends Notifier {
 				Messages.BacklogWebdavPublisher_StartPublish());
 
 		// webdav client
-		WebdavClient client = new WebdavClient(bpp.getSpaceURL() + "dav/"
-				+ bpp.getProject() + "/", bpp.userId, bpp.password);
+		WebdavClient client = new WebdavClient(bpp.getSpaceURL() + "dav/" + bpp.getProject() + "/", bpp.userId,
+				bpp.getPassword());
 
 		// set remove prefix
 		String prefix = build.getEnvironment(listener).expand(removePrefix);

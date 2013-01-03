@@ -2,13 +2,13 @@ package hudson.plugins.backlog;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 
+import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
+import org.jvnet.hudson.test.HudsonTestCase;
 
-public class BacklogProjectPropertyTest {
+public class BacklogProjectPropertyTest extends HudsonTestCase {
 
 	private BacklogProjectProperty bpp;
 
@@ -17,7 +17,7 @@ public class BacklogProjectPropertyTest {
 		bpp = new BacklogProjectProperty(null, null, null);
 		assertNull(bpp.url);
 		assertNull(bpp.userId);
-		assertNull(bpp.password);
+		assertTrue(StringUtils.isEmpty(bpp.getPassword()));
 	}
 
 	@Test
@@ -26,7 +26,7 @@ public class BacklogProjectPropertyTest {
 				"https://demo.backlog.jp/projects/DORA", "test", "test");
 		assertEquals("https://demo.backlog.jp/projects/DORA", bpp.url);
 		assertEquals("test", bpp.userId);
-		assertEquals("test", bpp.password);
+		assertEquals("test", bpp.getPassword());
 	}
 
 	@Test
@@ -35,13 +35,13 @@ public class BacklogProjectPropertyTest {
 				"test");
 		assertEquals("https://demo.backlog.jp/", bpp.url);
 		assertEquals("test", bpp.userId);
-		assertEquals("test", bpp.password);
+		assertEquals("test", bpp.getPassword());
 
 		bpp = new BacklogProjectProperty("https://demo.backlog.jp", "test",
 				"test");
 		assertEquals("https://demo.backlog.jp/", bpp.url);
 		assertEquals("test", bpp.userId);
-		assertEquals("test", bpp.password);
+		assertEquals("test", bpp.getPassword());
 	}
 
 	@Test

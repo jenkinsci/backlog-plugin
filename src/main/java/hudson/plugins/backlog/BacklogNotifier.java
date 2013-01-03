@@ -111,7 +111,7 @@ public class BacklogNotifier extends Notifier {
 					"'userId' is not set, so creating issue is skipped.");
 			return true;
 		}
-		if (StringUtils.isEmpty(bpp.password)) {
+		if (StringUtils.isEmpty(bpp.getPassword())) {
 			listener.getLogger().println(
 					"'password' is not set, so creating issue is skipped.");
 			return true;
@@ -119,7 +119,7 @@ public class BacklogNotifier extends Notifier {
 
 		try {
 			BacklogApiClient client = new BacklogApiClient();
-			client.login(bpp.getSpaceURL(), bpp.userId, bpp.password);
+			client.login(bpp.getSpaceURL(), bpp.userId, bpp.getPassword());
 
 			Project project = client.getProject(bpp.getProject());
 			MimeMessage message = new MessageCreator(build, listener)

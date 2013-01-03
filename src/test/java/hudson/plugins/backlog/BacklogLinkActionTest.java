@@ -1,10 +1,9 @@
 package hudson.plugins.backlog;
 
-import static org.junit.Assert.assertEquals;
-
 import org.junit.Test;
+import org.jvnet.hudson.test.HudsonTestCase;
 
-public class BacklogLinkActionTest {
+public class BacklogLinkActionTest extends HudsonTestCase {
 
 	@Test
 	public final void testGetUrlName() {

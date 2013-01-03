@@ -8,6 +8,7 @@ import hudson.model.AbstractProject;
 import hudson.model.Job;
 import hudson.plugins.backlog.api.BacklogApiClient;
 import hudson.util.FormValidation;
+import hudson.util.Secret;
 import net.sf.json.JSONObject;
 
 import org.apache.commons.lang.StringUtils;
@@ -27,7 +28,7 @@ public final class BacklogProjectProperty extends
 
 	public final String url;
 	public final String userId;
-	public final String password;
+	private final Secret password;
 
 	@DataBoundConstructor
 	public BacklogProjectProperty(final String url, final String userId,
@@ -47,7 +48,11 @@ public final class BacklogProjectProperty extends
 		}
 
 		this.userId = userId;
-		this.password = password;
+		this.password = Secret.fromString(password);
+	}
+
+	public String getPassword() {
+		return Secret.toString(password);
 	}
 
 	public String getSpaceURL() {
