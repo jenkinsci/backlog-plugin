@@ -1,8 +1,9 @@
 package hudson.plugins.backlog;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.CoreMatchers.*;
+import static org.junit.Assert.*;
+import hudson.plugins.backlog.BacklogProjectProperty.DescriptorImpl;
+import hudson.util.FormValidation;
 
 import org.apache.commons.lang.StringUtils;
 import org.junit.Test;
@@ -70,6 +71,17 @@ public class BacklogProjectPropertyTest extends HudsonTestCase {
 		bpp = new BacklogProjectProperty(
 				"https://demo.backlog.jp/projects/DORA", "test", "test");
 		assertThat(bpp.getSpaceURL(), is("https://demo.backlog.jp/"));
+	}
+
+	@Test
+	public void testDoCheckUserId() throws Exception {
+		DescriptorImpl descriptor = new DescriptorImpl();
+
+		assertThat(descriptor.doCheckUserId(""), is(FormValidation.ok()));
+		assertThat(descriptor.doCheckUserId("ikikko_1234-github"), is(FormValidation.ok()));
+		assertThat(descriptor.doCheckUserId("ikikko_1234-github@gmail.com"), is(FormValidation.ok()));
+
+		assertThat(descriptor.doCheckUserId("ikikko+github@gmail.com"), is(not(FormValidation.ok())));
 	}
 
 }

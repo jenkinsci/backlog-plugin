@@ -114,7 +114,7 @@ public final class BacklogProjectProperty extends
 		}
 
 		public FormValidation doCheckUserId(@QueryParameter String userId) {
-			if (StringUtils.isEmpty(userId) || userId.matches("[A-Za-z0-9-_]+")) {
+			if (StringUtils.isEmpty(userId) || userId.matches("[A-Za-z0-9-_@.]+")) {
 				return FormValidation.ok();
 			} else {
 				return FormValidation.error(Messages
