@@ -14,7 +14,12 @@
     <f:entry title="${%Password}" field="password">
       <f:password />
     </f:entry>
-    
+
+    <!-- TODO nakamura : i18n, help -->
+    <f:entry title="${%ApiKey}" field="apiKey">
+      <f:password />
+    </f:entry>
+
   </f:optionalBlock>
 
 </j:jelly>

@@ -74,6 +74,11 @@
     	<version>1.1.22</version>
     	<optional>true</optional>
     </dependency>
+    <dependency>
+        <groupId>com.nulab-inc</groupId>
+        <artifactId>backlog4j</artifactId>
+        <version>2.1.4-SNAPSHOT</version>
+    </dependency>
   </dependencies>
 
   <repositories>
@@ -91,6 +96,15 @@
       <name>Eclipse JGit Repository</name>
       <url>http://download.eclipse.org/jgit/maven</url>
     </repository>
+    <!-- TODO remove after public release -->
+    <repository>
+      <id>oss-sonatype-snapshot</id>
+      <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+      <snapshots>
+        <enabled>true</enabled>
+        <updatePolicy>always</updatePolicy>
+      </snapshots>
+    </repository>
   </repositories>
 
     <pluginRepositories>
@@ -99,5 +113,5 @@
             <url>http://repo.jenkins-ci.org/public/</url>
         </pluginRepository>
     </pluginRepositories>
-</project>  
+</project>
 
