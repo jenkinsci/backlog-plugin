@@ -3,9 +3,7 @@ package hudson.plugins.backlog;
 import com.nulabinc.backlog4j.BacklogClient;
 import com.nulabinc.backlog4j.BacklogClientFactory;
 import com.nulabinc.backlog4j.PullRequest;
-import com.nulabinc.backlog4j.ResponseList;
 import com.nulabinc.backlog4j.api.option.AddPullRequestCommentParams;
-import com.nulabinc.backlog4j.api.option.PullRequestQueryParams;
 import com.nulabinc.backlog4j.conf.BacklogConfigure;
 import com.nulabinc.backlog4j.conf.BacklogJpConfigure;
 import hudson.Extension;
@@ -21,12 +19,15 @@ import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Notifier;
 import hudson.tasks.Publisher;
 import org.apache.commons.lang.StringUtils;
+import org.eclipse.jgit.lib.Constants;
+import org.eclipse.jgit.transport.RefSpec;
 import org.eclipse.jgit.transport.RemoteConfig;
 import org.eclipse.jgit.transport.URIish;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Notifier that comments a pull request on Backlog.
@@ -85,36 +86,44 @@ public class BacklogPullRequestNotifier extends Notifier {
 		BacklogConfigure configure = new BacklogJpConfigure(spaceKey).apiKey(bpp.getApiKey());
 		BacklogClient backlog = new BacklogClientFactory(configure).newClient();
 
-		PullRequestQueryParams queryParams = new PullRequestQueryParams();
-		queryParams.statusType(Arrays.asList(PullRequest.StatusType.Open));
-		queryParams.count(100);
-
 		for (RemoteConfig repository : ((GitSCM) build.getProject().getScm()).getRepositories()) {
-			String repoName = repository.getName();
+			Pattern pullRequestRefPattern = Pattern.compile(getRefSpecDestination(repository) + "/(\\d+)/head");
 
 			for (URIish uri : repository.getURIs()) {
-				ResponseList<PullRequest> pullRequests = backlog.getPullRequests(bpp.getProject(), uri.getHumanishName(), queryParams);
-
 				for (Branch branch : data.getLastBuiltRevision().getBranches()) {
-					String localBranch = branch.getName().substring(repoName.length() + 1);
-
-					for (PullRequest pullRequest : pullRequests) {
-						if (localBranch.equals(pullRequest.getBranch())) {
-							String content = String.format("Build is %s ( %s )",
-									build.getResult().toString(), build.getAbsoluteUrl());
-							AddPullRequestCommentParams AddParams = new AddPullRequestCommentParams(
-									bpp.getProject(), uri.getHumanishName(), pullRequest.getNumber(), content);
-							backlog.addPullRequestComment(AddParams);
-
-							listener.getLogger().println(String.format("pull request comment : %s#%d",
-									uri.getHumanishName(), pullRequest.getNumber()));
-						}
+					Matcher matcher = pullRequestRefPattern.matcher(branch.getName());
+					if (!matcher.matches()) {
+						continue;
 					}
+
+					long pullRequestId = Long.parseLong(matcher.group(1));
+					PullRequest pullRequest = backlog.getPullRequest(bpp.getProject(), uri.getHumanishName(), pullRequestId);
+					if (!pullRequest.getStatus().getStatus().equals(PullRequest.StatusType.Open)) {
+						continue;
+					}
+
+					String content = String.format("Build is %s ( %s )",
+							build.getResult().toString(), build.getAbsoluteUrl());
+					AddPullRequestCommentParams AddParams = new AddPullRequestCommentParams(
+							bpp.getProject(), uri.getHumanishName(), pullRequest.getNumber(), content);
+					backlog.addPullRequestComment(AddParams);
+
+					listener.getLogger().println(String.format("pull request comment : %s#%d",
+							uri.getHumanishName(), pullRequest.getNumber()));
 				}
 			}
 		}
 
 		return true;
+	}
+
+	// resSpec : +refs/pull/*:refs/remotes/origin/pr/*
+	// dest    : origin/pr
+	private String getRefSpecDestination(RemoteConfig repository) {
+		RefSpec refSpec = repository.getFetchRefSpecs().get(0);
+
+		String destination = refSpec.getDestination().substring(Constants.R_REMOTES.length());
+		return destination.replace("/*", "");
 	}
 
 	public BuildStepMonitor getRequiredMonitorService() {
