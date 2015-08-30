@@ -5,7 +5,7 @@ import com.nulabinc.backlog4j.BacklogClientFactory;
 import com.nulabinc.backlog4j.PullRequest;
 import com.nulabinc.backlog4j.api.option.AddPullRequestCommentParams;
 import com.nulabinc.backlog4j.conf.BacklogConfigure;
-import com.nulabinc.backlog4j.conf.BacklogJpConfigure;
+import com.nulabinc.backlog4j.conf.BacklogPackageConfigure;
 import hudson.Extension;
 import hudson.Launcher;
 import hudson.model.AbstractBuild;
@@ -19,6 +19,7 @@ import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Notifier;
 import hudson.tasks.Publisher;
+import jenkins.model.Jenkins;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.transport.RefSpec;
@@ -70,8 +71,7 @@ public class BacklogPullRequestNotifier extends Notifier {
 			return true;
 		}
 
-		// TODO ikikko : check if git plugin is available
-		if (!(build.getProject().getScm() instanceof GitSCM)) {
+		if (Jenkins.getInstance().getPlugin("git") == null) {
 			listener.getLogger().println("This project doesn't use Git as SCM. Can't comment a pull request.");
 			return true;
 		}
@@ -82,12 +82,9 @@ public class BacklogPullRequestNotifier extends Notifier {
 			return true;
 		}
 
-		// FIXME nakamura : start log
-		listener.getLogger().println("start");
+		listener.getLogger().println("Adding pull request comments...");
 
-		// TODO ikikko : enable to change space
-		String spaceKey = "nulab";
-		BacklogConfigure configure = new BacklogJpConfigure(spaceKey).apiKey(bpp.getApiKey());
+		BacklogConfigure configure = new BacklogPackageConfigure(bpp.getSpaceURL()).apiKey(bpp.getApiKey());
 		BacklogClient backlog = new BacklogClientFactory(configure).newClient();
 
 		for (RemoteConfig repository : ((GitSCM) build.getProject().getScm()).getRepositories()) {
