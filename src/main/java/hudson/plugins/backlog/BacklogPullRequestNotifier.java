@@ -91,7 +91,13 @@ public class BacklogPullRequestNotifier extends Notifier {
 		BacklogClient backlog = new BacklogClientFactory(configure).newClient();
 
 		for (RemoteConfig repository : ((GitSCM) build.getProject().getScm()).getRepositories()) {
-			Pattern pullRequestRefPattern = Pattern.compile(getRefSpecDestination(repository) + "/(\\d+)/head");
+			Pattern pullRequestRefPattern;
+			try {
+				pullRequestRefPattern = getPullRequestRefPattern(repository);
+			} catch (IllegalArgumentException e) {
+				listener.getLogger().println(e.getMessage());
+				return true;
+			}
 
 			for (URIish uri : repository.getURIs()) {
 				for (Branch branch : data.getLastBuiltRevision().getBranches()) {
@@ -126,13 +132,20 @@ public class BacklogPullRequestNotifier extends Notifier {
 
 	// refSpec     : +refs/pull/*:refs/remotes/origin/pr/*
 	// destination : origin/pr
-	private String getRefSpecDestination(RemoteConfig repository) {
-		// TODO nakamura : check whether refspec contains "refs/pull/"
-
+	//
+	// result      : origin/pr/(\\d+)/head
+	Pattern getPullRequestRefPattern(RemoteConfig repository) {
 		RefSpec refSpec = repository.getFetchRefSpecs().get(0);
 
+		String source = refSpec.getSource();
+		if (!source.contains("refs/pull/")) {
+			throw new IllegalArgumentException("A source of refSpec doesn't contain pull request refs 'refs/pull/'");
+		}
+
 		String destination = refSpec.getDestination().substring(Constants.R_REMOTES.length());
-		return destination.replace("/*", "");
+		destination = destination.replace("/*", "");
+
+		return Pattern.compile(destination + "/(\\d+)/head");
 	}
 
 	private void hyperlinkPullRequest(BuildListener listener, BacklogProjectProperty bpp, URIish uri, PullRequest pullRequest) throws IOException {
