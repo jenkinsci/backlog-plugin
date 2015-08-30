@@ -136,7 +136,7 @@ public class BacklogPullRequestNotifier extends Notifier {
 
 		String source = refSpec.getSource();
 		if (!source.contains("refs/pull/")) {
-			throw new IllegalArgumentException("A source of refSpec doesn't contain pull request refs 'refs/pull/'");
+			throw new IllegalArgumentException("Don't add pull request comments, because refspec's source '" + source + "' doesn't contain pull request refs 'refs/pull/'");
 		}
 
 		String destination = refSpec.getDestination().substring(Constants.R_REMOTES.length());
@@ -148,21 +148,21 @@ public class BacklogPullRequestNotifier extends Notifier {
 	private void hyperlinkPullRequest(BuildListener listener, BacklogProjectProperty bpp, URIish uri, PullRequest pullRequest) throws IOException {
 		String url = String.format("%sgit/%s/%s/pullRequests/%d",
 				bpp.getSpaceURL(), bpp.getProject(), uri.getHumanishName(), pullRequest.getNumber());
-		String text = String.format("%s#%d\n",
-				uri.getHumanishName(), pullRequest.getNumber());
+		String text = String.format("%s/%s#%d\n",
+				bpp.getProject(), uri.getHumanishName(), pullRequest.getNumber());
 
 		listener.hyperlink(url, text);
 	}
 
 	private String convertEmoticonFromResult(Result result) {
 		if (result.isBetterOrEqualTo(Result.SUCCESS)) {
-			return ":-D";
+			return "\":-D\"";
 		} else if (result.isBetterOrEqualTo(Result.UNSTABLE)) {
-			return ":'(";
+			return "\":'(\"";
 		} else if (result.isBetterOrEqualTo(Result.FAILURE)) {
-			return ":-@";
+			return "\":-@\"";
 		} else {
-			return ":-S";
+			return "\":-S\"";
 		}
 	}
 
