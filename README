@@ -1,2 +1,6 @@
 This plugin integrates Jenkins to Backlog.
 Backlog (http://www.backlog.jp) is Issue Tracking System & Team Collaboration Tool.
+
+# TODO
+- add i18n
+- add help files

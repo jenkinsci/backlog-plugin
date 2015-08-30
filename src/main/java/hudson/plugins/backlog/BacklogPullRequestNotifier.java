@@ -11,6 +11,7 @@ import hudson.Launcher;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
 import hudson.model.BuildListener;
+import hudson.model.Result;
 import hudson.plugins.git.Branch;
 import hudson.plugins.git.GitSCM;
 import hudson.plugins.git.util.BuildData;
@@ -81,6 +82,9 @@ public class BacklogPullRequestNotifier extends Notifier {
 			return true;
 		}
 
+		// FIXME nakamura : start log
+		listener.getLogger().println("start");
+
 		// TODO ikikko : enable to change space
 		String spaceKey = "nulab";
 		BacklogConfigure configure = new BacklogJpConfigure(spaceKey).apiKey(bpp.getApiKey());
@@ -98,18 +102,21 @@ public class BacklogPullRequestNotifier extends Notifier {
 
 					long pullRequestId = Long.parseLong(matcher.group(1));
 					PullRequest pullRequest = backlog.getPullRequest(bpp.getProject(), uri.getHumanishName(), pullRequestId);
+
 					if (!pullRequest.getStatus().getStatus().equals(PullRequest.StatusType.Open)) {
+						listener.getLogger().print("This pull request has been already closed : ");
+						hyperlinkPullRequest(listener, bpp, uri, pullRequest);
 						continue;
 					}
 
-					String content = String.format("Build is %s ( %s )",
-							build.getResult().toString(), build.getAbsoluteUrl());
+					String content = String.format("%s Build is %s ( %s )",
+							convertEmoticonFromResult(build.getResult()), build.getResult().toString(), build.getAbsoluteUrl());
 					AddPullRequestCommentParams AddParams = new AddPullRequestCommentParams(
 							bpp.getProject(), uri.getHumanishName(), pullRequest.getNumber(), content);
 					backlog.addPullRequestComment(AddParams);
 
-					listener.getLogger().println(String.format("pull request comment : %s#%d",
-							uri.getHumanishName(), pullRequest.getNumber()));
+					listener.getLogger().print("Added a pull request comment : ");
+					hyperlinkPullRequest(listener, bpp, uri, pullRequest);
 				}
 			}
 		}
@@ -117,13 +124,36 @@ public class BacklogPullRequestNotifier extends Notifier {
 		return true;
 	}
 
-	// resSpec : +refs/pull/*:refs/remotes/origin/pr/*
-	// dest    : origin/pr
+	// refSpec     : +refs/pull/*:refs/remotes/origin/pr/*
+	// destination : origin/pr
 	private String getRefSpecDestination(RemoteConfig repository) {
+		// TODO nakamura : check whether refspec contains "refs/pull/"
+
 		RefSpec refSpec = repository.getFetchRefSpecs().get(0);
 
 		String destination = refSpec.getDestination().substring(Constants.R_REMOTES.length());
 		return destination.replace("/*", "");
+	}
+
+	private void hyperlinkPullRequest(BuildListener listener, BacklogProjectProperty bpp, URIish uri, PullRequest pullRequest) throws IOException {
+		String url = String.format("%sgit/%s/%s/pullRequests/%d",
+				bpp.getSpaceURL(), bpp.getProject(), uri.getHumanishName(), pullRequest.getNumber());
+		String text = String.format("%s#%d\n",
+				uri.getHumanishName(), pullRequest.getNumber());
+
+		listener.hyperlink(url, text);
+	}
+
+	private String convertEmoticonFromResult(Result result) {
+		if (result.isBetterOrEqualTo(Result.SUCCESS)) {
+			return ":-D";
+		} else if (result.isBetterOrEqualTo(Result.UNSTABLE)) {
+			return ":'(";
+		} else if (result.isBetterOrEqualTo(Result.FAILURE)) {
+			return ":-@";
+		} else {
+			return ":-S";
+		}
 	}
 
 	public BuildStepMonitor getRequiredMonitorService() {
