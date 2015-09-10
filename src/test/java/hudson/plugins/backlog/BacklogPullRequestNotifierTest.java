@@ -27,7 +27,11 @@ public class BacklogPullRequestNotifierTest {
 
         Matcher matcher = patttern.matcher("origin/pr/12/head");
         assertThat(matcher.matches(), is(true));
-        assertThat(matcher.group(1), is("12"));
+        assertThat(matcher.group("number"), is("12"));
+
+        matcher = patttern.matcher("refs/remotes/origin/pr/12/head");
+        assertThat(matcher.matches(), is(true));
+        assertThat(matcher.group("number"), is("12"));
 
         matcher = patttern.matcher("origin/master");
         assertThat(matcher.matches(), is(false));

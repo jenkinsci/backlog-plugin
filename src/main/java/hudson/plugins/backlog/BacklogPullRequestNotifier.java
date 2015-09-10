@@ -103,7 +103,7 @@ public class BacklogPullRequestNotifier extends Notifier {
 						continue;
 					}
 
-					long pullRequestId = Long.parseLong(matcher.group(1));
+					long pullRequestId = Long.parseLong(matcher.group("number"));
 					PullRequest pullRequest = backlog.getPullRequest(bpp.getProject(), uri.getHumanishName(), pullRequestId);
 
 					if (!pullRequest.getStatus().getStatus().equals(PullRequest.StatusType.Open)) {
@@ -130,7 +130,7 @@ public class BacklogPullRequestNotifier extends Notifier {
 	// refSpec     : +refs/pull/*:refs/remotes/origin/pr/*
 	// destination : origin/pr
 	//
-	// result      : origin/pr/(\\d+)/head
+	// result      : (refs/remotes/)?origin/pr/(\\d+)/head
 	Pattern getPullRequestRefPattern(RemoteConfig repository) {
 		RefSpec refSpec = repository.getFetchRefSpecs().get(0);
 
@@ -142,7 +142,7 @@ public class BacklogPullRequestNotifier extends Notifier {
 		String destination = refSpec.getDestination().substring(Constants.R_REMOTES.length());
 		destination = destination.replace("/*", "");
 
-		return Pattern.compile(destination + "/(\\d+)/head");
+		return Pattern.compile(String.format("(refs/remotes/)?%s/(?<number>\\d+)/head", destination));
 	}
 
 	private void hyperlinkPullRequest(BuildListener listener, BacklogProjectProperty bpp, URIish uri, PullRequest pullRequest) throws IOException {
