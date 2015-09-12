@@ -112,7 +112,7 @@ public class BacklogPullRequestNotifier extends Notifier {
 						continue;
 					}
 
-					String content = String.format("%s Build is %s ( %s )",
+					String content = String.format("%s Build %s ( %s )",
 							convertEmoticonFromResult(build.getResult()), build.getResult().toString(), build.getAbsoluteUrl());
 					AddPullRequestCommentParams AddParams = new AddPullRequestCommentParams(
 							bpp.getProject(), uri.getHumanishName(), pullRequest.getNumber(), content);
