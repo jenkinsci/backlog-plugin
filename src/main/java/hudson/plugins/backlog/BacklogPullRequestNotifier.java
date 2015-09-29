@@ -93,7 +93,7 @@ public class BacklogPullRequestNotifier extends Notifier {
 				pullRequestRefPattern = getPullRequestRefPattern(repository);
 			} catch (IllegalArgumentException e) {
 				listener.getLogger().println(e.getMessage());
-				return true;
+				continue;
 			}
 
 			for (URIish uri : repository.getURIs()) {
