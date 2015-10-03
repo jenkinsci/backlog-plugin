@@ -20,7 +20,7 @@ import org.kohsuke.stapler.StaplerRequest;
  * Property for {@link AbstractProject} that stores the associated Backlog
  * website URL.
  * 
- * @see http://d.hatena.ne.jp/cactusman/20090328/p1
+ * @see <a href="http://d.hatena.ne.jp/cactusman/20090328/p1">http://d.hatena.ne.jp/cactusman/20090328/p1</a>
  * @author dragon3
  */
 public final class BacklogProjectProperty extends

@@ -17,7 +17,7 @@ import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
  * Backlog API client that wraps {@link org.apache.xmlrpc.client.XmlRpcClient}.
  * 
  * @author ikikko
- * @see http://www.backlog.jp/api/
+ * @see <a href="http://www.backlog.jp/developer/api/xml-rpc/">http://www.backlog.jp/developer/api/xml-rpc/</a>
  */
 public class BacklogApiClient {
 
@@ -57,7 +57,7 @@ public class BacklogApiClient {
 	 * 
 	 * @throws XmlRpcException
 	 * 
-	 * @see http://www.backlog.jp/api/method###.html
+	 * @see <a href="http://www.backlog.jp/developer/api/xml-rpc/method_getUser.html">http://www.backlog.jp/developer/api/xml-rpc/method_getUser.html</a>
 	 * 
 	 */
 	public User getUser(final String userId) throws XmlRpcException {
@@ -74,7 +74,7 @@ public class BacklogApiClient {
 	 * 
 	 * @throws XmlRpcException
 	 * 
-	 * @see http://www.backlog.jp/api/method1_2.html
+	 * @see <a href="http://www.backlog.jp/developer/api/xml-rpc/method1_2.html">http://www.backlog.jp/developer/api/xml-rpc/method1_2.html</a>
 	 * 
 	 */
 	public Project getProject(final String key) throws XmlRpcException {
@@ -92,7 +92,7 @@ public class BacklogApiClient {
 	 * 
 	 * @throws XmlRpcException
 	 * 
-	 * @see http://www.backlog.jp/api/method4_1.html
+	 * @see <a href="http://www.backlog.jp/developer/api/xml-rpc/method4_1.html">http://www.backlog.jp/developer/api/xml-rpc/method4_1.html</a>
 	 * 
 	 */
 	public Issue createIssue(final int projectId, final Issue newIssue)
