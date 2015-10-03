@@ -15,7 +15,7 @@ public class BacklogProjectPropertyTest extends HudsonTestCase {
 
 	@Test
 	public final void testSpaceURLIsNull() {
-		bpp = new BacklogProjectProperty(null, null, null);
+		bpp = new BacklogProjectProperty(null, null, null, null);
 		assertNull(bpp.url);
 		assertNull(bpp.userId);
 		assertTrue(StringUtils.isEmpty(bpp.getPassword()));
@@ -24,7 +24,7 @@ public class BacklogProjectPropertyTest extends HudsonTestCase {
 	@Test
 	public final void testSpaceURLIsProjectURL() {
 		bpp = new BacklogProjectProperty(
-				"https://demo.backlog.jp/projects/DORA", "test", "test");
+				"https://demo.backlog.jp/projects/DORA", "test", "test", "apiKey");
 		assertEquals("https://demo.backlog.jp/projects/DORA", bpp.url);
 		assertEquals("test", bpp.userId);
 		assertEquals("test", bpp.getPassword());
@@ -33,13 +33,13 @@ public class BacklogProjectPropertyTest extends HudsonTestCase {
 	@Test
 	public final void testSpaceURL() {
 		bpp = new BacklogProjectProperty("https://demo.backlog.jp/", "test",
-				"test");
+				"test", "apiKey");
 		assertEquals("https://demo.backlog.jp/", bpp.url);
 		assertEquals("test", bpp.userId);
 		assertEquals("test", bpp.getPassword());
 
 		bpp = new BacklogProjectProperty("https://demo.backlog.jp", "test",
-				"test");
+				"test", "apiKey");
 		assertEquals("https://demo.backlog.jp/", bpp.url);
 		assertEquals("test", bpp.userId);
 		assertEquals("test", bpp.getPassword());
@@ -47,29 +47,29 @@ public class BacklogProjectPropertyTest extends HudsonTestCase {
 
 	@Test
 	public void testGetProject() throws Exception {
-		bpp = new BacklogProjectProperty(null, null, null);
+		bpp = new BacklogProjectProperty(null, null, null, "apiKey");
 		assertThat(bpp.getProject(), nullValue());
 
 		bpp = new BacklogProjectProperty("https://demo.backlog.jp/", "test",
-				"test");
+				"test", "apiKey");
 		assertThat(bpp.getProject(), nullValue());
 
 		bpp = new BacklogProjectProperty(
-				"https://demo.backlog.jp/projects/DORA", "test", "test");
+				"https://demo.backlog.jp/projects/DORA", "test", "test", "apiKey");
 		assertThat(bpp.getProject(), is("DORA"));
 	}
 
 	@Test
 	public void testGetSpaceURL() throws Exception {
-		bpp = new BacklogProjectProperty(null, null, null);
+		bpp = new BacklogProjectProperty(null, null, null, null);
 		assertThat(bpp.getSpaceURL(), nullValue());
 
 		bpp = new BacklogProjectProperty("https://demo.backlog.jp/", "test",
-				"test");
+				"test", "apiKey");
 		assertThat(bpp.getSpaceURL(), is("https://demo.backlog.jp/"));
 
 		bpp = new BacklogProjectProperty(
-				"https://demo.backlog.jp/projects/DORA", "test", "test");
+				"https://demo.backlog.jp/projects/DORA", "test", "test", "apiKey");
 		assertThat(bpp.getSpaceURL(), is("https://demo.backlog.jp/"));
 	}
 

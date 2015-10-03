@@ -29,10 +29,11 @@ public final class BacklogProjectProperty extends
 	public final String url;
 	public final String userId;
 	private final Secret password;
+	private final Secret apiKey;
 
 	@DataBoundConstructor
 	public BacklogProjectProperty(final String url, final String userId,
-			final String password) {
+								  final String password, final String apiKey) {
 
 		// normalize
 		if (StringUtils.isNotEmpty(url)) {
@@ -49,10 +50,15 @@ public final class BacklogProjectProperty extends
 
 		this.userId = userId;
 		this.password = Secret.fromString(password);
+		this.apiKey = Secret.fromString(apiKey);
 	}
 
 	public String getPassword() {
 		return Secret.toString(password);
+	}
+
+	public String getApiKey() {
+		return Secret.toString(apiKey);
 	}
 
 	public String getSpaceURL() {
