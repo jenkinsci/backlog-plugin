@@ -1,5 +1,7 @@
 package hudson.plugins.backlog.webdav;
 
+import com.github.sardine.SardineFactory;
+import com.github.sardine.impl.SardineImpl;
 import hudson.FilePath;
 import hudson.plugins.backlog.Messages;
 
@@ -8,8 +10,6 @@ import java.io.IOException;
 import org.apache.http.HttpEntity;
 import org.apache.http.protocol.HTTP;
 
-import com.googlecode.sardine.SardineFactory;
-import com.googlecode.sardine.impl.SardineImpl;
 
 public class WebdavClient {
 
