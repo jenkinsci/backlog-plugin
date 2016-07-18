@@ -4,6 +4,7 @@ import hudson.Extension;
 import hudson.MarkupText;
 import hudson.MarkupText.SubText;
 import hudson.model.AbstractBuild;
+import hudson.model.Run;
 import hudson.scm.ChangeLogAnnotator;
 import hudson.scm.ChangeLogSet.Entry;
 
@@ -30,9 +31,8 @@ public class BacklogChangelogAnnotator extends ChangeLogAnnotator {
 			.compile("(?:(?<![/A-Z0-9a-z-_])([A-Z0-9_]+-[1-9][0-9]*)|\\[\\[([A-Z0-9_]+-[1-9][0-9]*)\\]\\])");
 
 	@Override
-	public void annotate(AbstractBuild<?, ?> build, Entry change,
-			MarkupText text) {
-		BacklogProjectProperty bpp = build.getProject().getProperty(
+	public void annotate(Run<?, ?> build, Entry change, MarkupText text) {
+		BacklogProjectProperty bpp = build.getParent().getProperty(
 				BacklogProjectProperty.class);
 		if (bpp == null || bpp.getSpaceURL() == null) {
 			LOG.warn("BacklogProjectProperty is null or BacklogProjectProperty's spaceURL is null");

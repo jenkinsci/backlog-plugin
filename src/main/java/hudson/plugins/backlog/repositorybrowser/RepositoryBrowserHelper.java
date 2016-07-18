@@ -1,9 +1,13 @@
 package hudson.plugins.backlog.repositorybrowser;
 
 import hudson.model.AbstractProject;
+import hudson.model.Job;
+import hudson.model.JobProperty;
+import hudson.model.Run;
 import hudson.plugins.backlog.BacklogGitRepositoryBrowser;
 import hudson.plugins.backlog.BacklogProjectProperty;
 import hudson.plugins.backlog.BacklogRepositoryBrowser;
+import hudson.scm.ChangeLogSet;
 import hudson.scm.ChangeLogSet.Entry;
 
 import org.apache.commons.lang.StringUtils;
@@ -31,10 +35,8 @@ public class RepositoryBrowserHelper {
 	 * Gets a Backlog project property configured for the current project.
 	 */
 	public BacklogProjectProperty getProjectProperty(Entry cs) {
-		AbstractProject<?, ?> p = (AbstractProject<?, ?>) cs.getParent().build
-				.getProject();
-
-		return p.getProperty(BacklogProjectProperty.class);
+		Run<?, ?> run = cs.getParent().getRun();
+		return run.getParent().getProperty(BacklogProjectProperty.class);
 	}
 
 	public String getSpaceURL(Entry cs) {
