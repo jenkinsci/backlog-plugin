@@ -15,6 +15,8 @@ import hudson.plugins.git.Branch;
 import hudson.plugins.git.GitSCM;
 import hudson.plugins.git.util.BuildData;
 import jenkins.model.Jenkins;
+import jenkins.plugins.git.GitSCMSource;
+import jenkins.scm.api.SCMSource;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.transport.RefSpec;
@@ -22,9 +24,12 @@ import org.eclipse.jgit.transport.RemoteConfig;
 import org.eclipse.jgit.transport.URIish;
 import org.jenkinsci.plugins.workflow.cps.CpsScmFlowDefinition;
 import org.jenkinsci.plugins.workflow.flow.FlowDefinition;
+import org.jenkinsci.plugins.workflow.job.WorkflowJob;
 import org.jenkinsci.plugins.workflow.job.WorkflowRun;
+import org.jenkinsci.plugins.workflow.multibranch.WorkflowMultiBranchProject;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -69,28 +74,69 @@ public class PullRequestDelegate {
             return;
         }
 
-        BuildData data = run.getAction(BuildData.class);
-        if (data == null) {
-            listener.getLogger().println("This project doesn't use Git as SCM. Can't comment a pull request.");
-            return;
-        }
-
         listener.getLogger().println("Adding pull request comments...");
 
         BacklogConfigure configure = new BacklogPackageConfigure(bpp.getSpaceURL()).apiKey(bpp.getApiKey());
         BacklogClient backlog = new BacklogClientFactory(configure).newClient();
 
+        if (isBasedOnMultiBranchProject()) {
+            commentBasedOnMultiBranchProject(bpp, backlog);
+        } else {
+            BuildData data = run.getAction(BuildData.class);
+            if (data == null) {
+                listener.getLogger().println("This project doesn't use Git as SCM. Can't comment a pull request.");
+                return;
+            }
+
+            commentBasedOnNonMultiBranchProject(bpp, data, backlog);
+        }
+    }
+
+    private boolean isBasedOnMultiBranchProject() {
+        if (run instanceof AbstractBuild) {
+            return false;
+        }
+        if (run instanceof WorkflowRun) {
+            return run.getParent().getParent() instanceof WorkflowMultiBranchProject;
+        }
+
+        listener.getLogger().println("Unknown project type : " + run.getParent().getClass());
+        return false;
+    }
+
+    private void commentBasedOnMultiBranchProject(BacklogProjectProperty bpp, BacklogClient backlog) throws IOException {
+        WorkflowJob workflowJob = ((WorkflowRun) run).getParent();
+
+        for (SCMSource scmSource : ((WorkflowMultiBranchProject) workflowJob.getParent()).getSCMSources()) {
+            if (!(scmSource instanceof GitSCMSource)) { // TODO maybe should be changed to BacklogGitSCMSource
+                continue;
+            }
+            try {
+                URIish uri = new URIish(((GitSCMSource) scmSource).getRemote());
+                long pullRequestId = Long.parseLong(workflowJob.getName());
+
+                commentToPullRequest(bpp, backlog, uri, pullRequestId);
+            } catch (URISyntaxException e) {
+                listener.getLogger().println(e.getMessage());
+                continue;
+            }
+        }
+    }
+
+    private void commentBasedOnNonMultiBranchProject(BacklogProjectProperty bpp, BuildData data, BacklogClient backlog) throws IOException {
         GitSCM scm = null;
         if (run instanceof AbstractBuild) {
             scm = (GitSCM) ((AbstractBuild) run).getProject().getScm();
         }
         if (run instanceof WorkflowRun) {
-            FlowDefinition definition = ((WorkflowRun) run).getParent().getDefinition();
+            WorkflowJob workflowJob = ((WorkflowRun) run).getParent();
+
+            FlowDefinition definition = workflowJob.getDefinition();
             if (definition instanceof CpsScmFlowDefinition) {
                 scm = (GitSCM) ((CpsScmFlowDefinition) definition).getScm();
             }
         }
-        if (scm == null){
+        if (scm == null) {
             listener.getLogger().println("This project doesn't use Git as SCM. Can't comment a pull request.");
             return;
         }
@@ -112,31 +158,35 @@ public class PullRequestDelegate {
                     }
 
                     long pullRequestId = Long.parseLong(matcher.group("number"));
-                    PullRequest pullRequest = backlog.getPullRequest(bpp.getProject(), uri.getHumanishName(), pullRequestId);
-
-                    if (!pullRequest.getStatus().getStatus().equals(PullRequest.StatusType.Open)) {
-                        listener.getLogger().print("This pull request has been already closed : ");
-                        hyperlinkPullRequest(listener, bpp, uri, pullRequest);
-                        continue;
-                    }
-
-                    Result result;
-                    if (inProgressPipeline(run)) {
-                        result = Result.SUCCESS;
-                    } else {
-                        result = run.getResult();
-                    }
-                    String content = String.format("%s Build %s ( %s )",
-                            convertEmoticonFromResult(result), result.toString(), run.getAbsoluteUrl());
-                    AddPullRequestCommentParams AddParams = new AddPullRequestCommentParams(
-                            bpp.getProject(), uri.getHumanishName(), pullRequest.getNumber(), content);
-                    backlog.addPullRequestComment(AddParams);
-
-                    listener.getLogger().print("Added a pull request comment : ");
-                    hyperlinkPullRequest(listener, bpp, uri, pullRequest);
+                    commentToPullRequest(bpp, backlog, uri, pullRequestId);
                 }
             }
         }
+    }
+
+    private void commentToPullRequest(BacklogProjectProperty bpp, BacklogClient backlog, URIish uri, long pullRequestId) throws IOException {
+        PullRequest pullRequest = backlog.getPullRequest(bpp.getProject(), uri.getHumanishName(), pullRequestId);
+
+        if (!pullRequest.getStatus().getStatus().equals(PullRequest.StatusType.Open)) {
+            listener.getLogger().print("This pull request has been already closed : ");
+            hyperlinkPullRequest(listener, bpp, uri, pullRequest);
+            return;
+        }
+
+        Result result;
+        if (inProgressPipeline(run)) {
+            result = Result.SUCCESS;
+        } else {
+            result = run.getResult();
+        }
+        String content = String.format("%s Build %s ( %s )",
+                convertEmoticonFromResult(result), result.toString(), run.getAbsoluteUrl());
+        AddPullRequestCommentParams AddParams = new AddPullRequestCommentParams(
+                bpp.getProject(), uri.getHumanishName(), pullRequest.getNumber(), content);
+        backlog.addPullRequestComment(AddParams);
+
+        listener.getLogger().print("Added a pull request comment : ");
+        hyperlinkPullRequest(listener, bpp, uri, pullRequest);
     }
 
     // refSpec     : +refs/pull/*:refs/remotes/origin/pr/*
