@@ -4,6 +4,9 @@ import com.cloudbees.plugins.credentials.CredentialsProvider;
 import com.cloudbees.plugins.credentials.common.StandardListBoxModel;
 import com.cloudbees.plugins.credentials.common.StandardUsernameCredentials;
 import com.cloudbees.plugins.credentials.domains.URIRequirementBuilder;
+import com.nulabinc.backlog4j.PullRequest;
+import com.nulabinc.backlog4j.ResponseList;
+import com.nulabinc.backlog4j.api.option.PullRequestQueryParams;
 import edu.umd.cs.findbugs.annotations.CheckForNull;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -12,7 +15,9 @@ import hudson.Extension;
 import hudson.Util;
 import hudson.model.*;
 import hudson.model.queue.Tasks;
+import hudson.plugins.backlog.BacklogProjectProperty;
 import hudson.plugins.backlog.Messages;
+import hudson.plugins.backlog.api.v2.BacklogClientFactory;
 import hudson.plugins.git.Branch;
 import hudson.plugins.git.GitSCM;
 import hudson.plugins.git.GitStatus;
@@ -24,6 +29,7 @@ import hudson.scm.RepositoryBrowser;
 import hudson.security.ACL;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
+import hudson.util.Secret;
 import jenkins.model.Jenkins;
 import jenkins.plugins.git.AbstractGitSCMSource;
 import jenkins.scm.api.*;
@@ -47,7 +53,9 @@ import org.kohsuke.stapler.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.MalformedURLException;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -83,6 +91,12 @@ public class BacklogPullRequestSCMSource extends AbstractGitSCMSource {
 
     private final boolean ignoreOnPushNotifications;
 
+    private final String url;
+
+    private final Secret apiKey;
+
+    private final BacklogProjectProperty bpp;
+
     @CheckForNull
     private GitRepositoryBrowser browser;
 
@@ -92,13 +106,19 @@ public class BacklogPullRequestSCMSource extends AbstractGitSCMSource {
     private List<GitSCMExtension> extensions;
 
     @DataBoundConstructor
-    public BacklogPullRequestSCMSource(String id, String remote, String credentialsId, String includes, String excludes, boolean ignoreOnPushNotifications) {
+    public BacklogPullRequestSCMSource(String id, String remote, String credentialsId, String includes, String excludes, boolean ignoreOnPushNotifications,
+                                       String url, String apiKey) {
         super(id);
         this.remote = remote;
         this.credentialsId = credentialsId;
         this.includes = includes;
         this.excludes = excludes;
         this.ignoreOnPushNotifications = ignoreOnPushNotifications;
+
+        this.url = url;
+        this.apiKey = Secret.fromString(apiKey);
+
+        this.bpp = new BacklogProjectProperty(url, "", "", apiKey);
     }
 
     public boolean isIgnoreOnPushNotifications() {
@@ -163,9 +183,22 @@ public class BacklogPullRequestSCMSource extends AbstractGitSCMSource {
         return excludes;
     }
 
+    public String getUrl() {
+        return url;
+    }
+
+    public Secret getApiKey() {
+        return apiKey;
+    }
+
+    public BacklogProjectProperty getBpp() {
+        return bpp;
+    }
+
     @Override
     protected List<RefSpec> getRefSpecs() {
-        return Arrays.asList(new RefSpec("+refs/heads/*:refs/remotes/" + getRemoteName() + "/*"));
+        // Change for pull request branches
+        return Arrays.asList(new RefSpec("+refs/pull/*:refs/remotes/" + getRemoteName() + "/*"));
     }
 
     @Extension
@@ -326,7 +359,9 @@ public class BacklogPullRequestSCMSource extends AbstractGitSCMSource {
             @Override
             public SCMRevision run(GitClient client, String remoteName) throws IOException, InterruptedException {
                 for (Branch b : client.getRemoteBranches()) {
-                    String branchName = StringUtils.removeStart(b.getName(), remoteName + "/");
+                    // Change for pull request branches
+                    // String branchName = StringUtils.removeStart(b.getName(), remoteName + "/");
+                    String branchName = StringUtils.removeEnd(StringUtils.removeStart(b.getName(), remoteName + "/"), "/head");
                     if (branchName.equals(head.getName())) {
                         return new SCMRevisionImpl(head, b.getSHA1String());
                     }
@@ -346,6 +381,8 @@ public class BacklogPullRequestSCMSource extends AbstractGitSCMSource {
             public Void run(GitClient client, String remoteName) throws IOException, InterruptedException {
                 final Repository repository = client.getRepository();
                 listener.getLogger().println("Getting remote branches...");
+                // Change for pull request branches
+                ResponseList<PullRequest> pullRequests = getOpenPullRequests();
                 SCMSourceCriteria branchCriteria = getCriteria();
                 try (RevWalk walk = new RevWalk(repository)) {
                     walk.setRetainBody(false);
@@ -353,9 +390,15 @@ public class BacklogPullRequestSCMSource extends AbstractGitSCMSource {
                         if (!b.getName().startsWith(remoteName + "/")) {
                             continue;
                         }
-                        final String branchName = StringUtils.removeStart(b.getName(), remoteName + "/");
+                        // Change for pull request branches
+                        // final String branchName = StringUtils.removeStart(b.getName(), remoteName + "/");
+                        final String branchName = StringUtils.removeEnd(StringUtils.removeStart(b.getName(), remoteName + "/"), "/head");
                         listener.getLogger().println("Checking branch " + branchName);
                         if (isExcluded(branchName)) {
+                            continue;
+                        }
+                        // Change for pull request branches
+                        if (!isPullRequestOpen(pullRequests, branchName)) {
                             continue;
                         }
                         if (branchCriteria != null) {
@@ -443,6 +486,23 @@ public class BacklogPullRequestSCMSource extends AbstractGitSCMSource {
         } finally {
             cacheLock.unlock();
         }
+    }
+
+    private ResponseList<PullRequest> getOpenPullRequests() throws MalformedURLException {
+        PullRequestQueryParams params = new PullRequestQueryParams();
+        params.statusType(Collections.singletonList(PullRequest.StatusType.Open));
+
+        String repoName = new URIish(new URL(remote)).getHumanishName();
+        return BacklogClientFactory.getBacklogClient(bpp).getPullRequests(bpp.getProject(), repoName, params);
+    }
+
+    private boolean isPullRequestOpen(ResponseList<PullRequest> pullRequests, String branchName) {
+        for (PullRequest pullRequest : pullRequests) {
+            if (pullRequest.getNumber() == Long.parseLong(branchName)) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

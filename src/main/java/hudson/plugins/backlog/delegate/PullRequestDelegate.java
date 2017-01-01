@@ -1,23 +1,19 @@
 package hudson.plugins.backlog.delegate;
 
 import com.nulabinc.backlog4j.BacklogClient;
-import com.nulabinc.backlog4j.BacklogClientFactory;
 import com.nulabinc.backlog4j.PullRequest;
 import com.nulabinc.backlog4j.api.option.AddPullRequestCommentParams;
-import com.nulabinc.backlog4j.conf.BacklogConfigure;
-import com.nulabinc.backlog4j.conf.BacklogPackageConfigure;
 import hudson.model.AbstractBuild;
 import hudson.model.Result;
 import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.plugins.backlog.BacklogProjectProperty;
+import hudson.plugins.backlog.api.v2.BacklogClientFactory;
+import hudson.plugins.backlog.pipeline.BacklogPullRequestSCMSource;
 import hudson.plugins.git.Branch;
 import hudson.plugins.git.GitSCM;
 import hudson.plugins.git.util.BuildData;
-import jenkins.model.Jenkins;
-import jenkins.plugins.git.GitSCMSource;
 import jenkins.scm.api.SCMSource;
-import org.apache.commons.lang.StringUtils;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.transport.RefSpec;
 import org.eclipse.jgit.transport.RemoteConfig;
@@ -46,38 +42,15 @@ public class PullRequestDelegate {
 
     public void notifyResult() throws InterruptedException, IOException {
         BacklogProjectProperty bpp = run.getParent().getProperty(BacklogProjectProperty.class);
-
-        // check project property parameter
-        if (bpp == null) {
-            listener.getLogger().println(
-                    "'Backlog property' is not set. Can't comment a pull request.");
-            return;
-        }
-        if (StringUtils.isEmpty(bpp.getSpaceURL())) {
-            listener.getLogger().println(
-                    "'Backlog URL' is not set. Can't comment a pull request.");
-            return;
-        }
-        if (StringUtils.isEmpty(bpp.getProject())) {
-            listener.getLogger().println(
-                    "'project' is not included in Backlog URL. Can't comment a pull request.");
-            return;
-        }
-        if (StringUtils.isEmpty(bpp.getApiKey())) {
-            listener.getLogger().println(
-                    "'apiKey' is not set. Can't comment a pull request.");
-            return;
-        }
-
-        if (Jenkins.getInstance().getPlugin("git") == null) {
-            listener.getLogger().println("This project doesn't use Git as SCM. Can't comment a pull request.");
+        BacklogClient backlog;
+        try {
+            backlog = BacklogClientFactory.getBacklogClient(bpp);
+        } catch (IllegalArgumentException e) {
+            listener.getLogger().println(e.getMessage());
             return;
         }
 
         listener.getLogger().println("Adding pull request comments...");
-
-        BacklogConfigure configure = new BacklogPackageConfigure(bpp.getSpaceURL()).apiKey(bpp.getApiKey());
-        BacklogClient backlog = new BacklogClientFactory(configure).newClient();
 
         if (isBasedOnMultiBranchProject()) {
             commentBasedOnMultiBranchProject(bpp, backlog);
@@ -108,11 +81,11 @@ public class PullRequestDelegate {
         WorkflowJob workflowJob = ((WorkflowRun) run).getParent();
 
         for (SCMSource scmSource : ((WorkflowMultiBranchProject) workflowJob.getParent()).getSCMSources()) {
-            if (!(scmSource instanceof GitSCMSource)) { // TODO maybe should be changed to BacklogGitSCMSource
+            if (!(scmSource instanceof BacklogPullRequestSCMSource)) {
                 continue;
             }
             try {
-                URIish uri = new URIish(((GitSCMSource) scmSource).getRemote());
+                URIish uri = new URIish(((BacklogPullRequestSCMSource) scmSource).getRemote());
                 long pullRequestId = Long.parseLong(workflowJob.getName());
 
                 commentToPullRequest(bpp, backlog, uri, pullRequestId);
