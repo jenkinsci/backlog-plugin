@@ -1,4 +1,4 @@
-package hudson.plugins.backlog;
+package hudson.plugins.backlog.delegate;
 
 import org.eclipse.jgit.lib.Config;
 import org.eclipse.jgit.transport.RefSpec;
@@ -15,15 +15,15 @@ import java.util.regex.Pattern;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-public class BacklogPullRequestNotifierTest {
+public class PullRequestDelegateTest {
 
-    BacklogPullRequestNotifier notifier = new BacklogPullRequestNotifier();
+    PullRequestDelegate delegate = new PullRequestDelegate(null, null);
 
     @Test
     public void getPullRequestRefPattern() throws Exception {
         RemoteConfig repository = setUpRepository("+refs/pull/*:refs/remotes/origin/pr/*");
 
-        Pattern patttern = notifier.getPullRequestRefPattern(repository);
+        Pattern patttern = delegate.getPullRequestRefPattern(repository);
 
         Matcher matcher = patttern.matcher("origin/pr/12/head");
         assertThat(matcher.matches(), is(true));
@@ -44,7 +44,7 @@ public class BacklogPullRequestNotifierTest {
     public void getPullRequestRefPattern_notPullRequestRef() throws Exception {
         RemoteConfig repository = setUpRepository("+refs/heads/*:refs/remotes/origin/*"); // default refspec
 
-        notifier.getPullRequestRefPattern(repository);
+        delegate.getPullRequestRefPattern(repository);
     }
 
     private RemoteConfig setUpRepository(String refSpec) throws URISyntaxException {

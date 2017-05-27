@@ -43,14 +43,23 @@ public class FilePathEntity extends AbstractHttpEntity {
 	}
 
 	public InputStream getContent() throws IOException, IllegalStateException {
-		return filePath.read();
+		try {
+			return filePath.read();
+		} catch (InterruptedException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	public void writeTo(OutputStream outstream) throws IOException {
 		if (outstream == null) {
 			throw new IllegalArgumentException("Output stream may not be null");
 		}
-		InputStream instream = filePath.read();
+		InputStream instream;
+		try {
+			instream = filePath.read();
+		} catch (InterruptedException e) {
+			throw new RuntimeException(e);
+		}
 		try {
 			byte[] tmp = new byte[4096];
 			int l;

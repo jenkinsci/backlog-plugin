@@ -9,6 +9,7 @@ import hudson.model.Job;
 import hudson.plugins.backlog.api.BacklogApiClient;
 import hudson.util.FormValidation;
 import hudson.util.Secret;
+import jenkins.model.ParameterizedJobMixIn;
 import net.sf.json.JSONObject;
 
 import org.apache.commons.lang.StringUtils;
@@ -24,7 +25,7 @@ import org.kohsuke.stapler.StaplerRequest;
  * @author dragon3
  */
 public final class BacklogProjectProperty extends
-		JobProperty<AbstractProject<?, ?>> {
+		JobProperty<Job<?, ?>> {
 
 	public final String url;
 	public final String userId;
@@ -86,7 +87,7 @@ public final class BacklogProjectProperty extends
 	}
 
 	@Override
-	public Action getJobAction(AbstractProject<?, ?> job) {
+	public Action getJobAction(Job<?, ?> job) {
 		return new BacklogLinkAction(this);
 	}
 
@@ -100,7 +101,7 @@ public final class BacklogProjectProperty extends
 
 		@Override
 		public boolean isApplicable(Class<? extends Job> jobType) {
-			return AbstractProject.class.isAssignableFrom(jobType);
+			return ParameterizedJobMixIn.ParameterizedJob.class.isAssignableFrom(jobType);
 		}
 
 		@Override
