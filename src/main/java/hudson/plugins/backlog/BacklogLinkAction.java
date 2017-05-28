@@ -4,7 +4,7 @@ import hudson.model.Action;
 
 public class BacklogLinkAction implements Action {
 
-	private final BacklogProjectProperty prop;
+	protected final BacklogProjectProperty prop;
 
 	public BacklogLinkAction(BacklogProjectProperty prop) {
 		this.prop = prop;
