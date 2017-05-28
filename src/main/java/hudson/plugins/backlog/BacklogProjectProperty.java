@@ -9,13 +9,20 @@ import hudson.model.Job;
 import hudson.plugins.backlog.api.BacklogApiClient;
 import hudson.util.FormValidation;
 import hudson.util.Secret;
+import jenkins.branch.MultiBranchProject;
 import jenkins.model.ParameterizedJobMixIn;
+import jenkins.model.TransientActionFactory;
 import net.sf.json.JSONObject;
 
 import org.apache.commons.lang.StringUtils;
+import org.jenkinsci.plugins.workflow.job.WorkflowJob;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
+
+import javax.annotation.Nonnull;
+import java.util.Collection;
+import java.util.Collections;
 
 /**
  * Property for {@link AbstractProject} that stores the associated Backlog
@@ -143,4 +150,25 @@ public final class BacklogProjectProperty extends
 			return bpp;
 		}
 	}
+
+	@Extension
+	public static class Factory extends TransientActionFactory<WorkflowJob> {
+
+		@Override
+		public Class<WorkflowJob> type() {
+			return WorkflowJob.class;
+		}
+
+		@Nonnull
+		@Override
+		public Collection<? extends Action> createFor(@Nonnull WorkflowJob target) {
+			if (target.getParent() instanceof MultiBranchProject) {
+				// Instead, add BacklogPullRequestLinkAction in BacklogPullRequestBranchProperty
+				return Collections.emptySet();
+			}
+
+			return Collections.singleton(new BacklogLinkAction(target.getProperty(BacklogProjectProperty.class)));
+		}
+	}
+
 }
