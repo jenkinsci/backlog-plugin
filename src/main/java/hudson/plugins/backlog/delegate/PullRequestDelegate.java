@@ -195,13 +195,15 @@ public class PullRequestDelegate {
 
     private String convertEmoticonFromResult(Result result) {
         if (result.isBetterOrEqualTo(Result.SUCCESS)) {
-            return "\":-D\"";
+            return ":smiley:";
         } else if (result.isBetterOrEqualTo(Result.UNSTABLE)) {
-            return "\":'(\"";
+            return ":cry:";
         } else if (result.isBetterOrEqualTo(Result.FAILURE)) {
-            return "\":-@\"";
+            return ":rage:";
+        } else if (result.isBetterOrEqualTo(Result.NOT_BUILT)) {
+            return ":mask:";
         } else {
-            return "\":-S\"";
+            return ":astonished:";
         }
     }
 
