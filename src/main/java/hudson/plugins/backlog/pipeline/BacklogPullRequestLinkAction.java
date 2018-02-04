@@ -9,8 +9,8 @@ import java.net.URL;
 
 public class BacklogPullRequestLinkAction extends BacklogLinkAction {
 
-    private final BacklogPullRequestSCMSource source;
-    private final PullRequest pullRequest;
+    private transient final BacklogPullRequestSCMSource source;
+    private transient final PullRequest pullRequest;
 
     public BacklogPullRequestLinkAction(BacklogPullRequestSCMSource source, PullRequest pullRequest) {
         super(source.getBpp());
