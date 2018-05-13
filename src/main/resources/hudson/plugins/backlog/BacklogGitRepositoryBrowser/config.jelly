@@ -28,7 +28,7 @@ THE SOFTWARE.
     <f:textbox />
   </f:entry>
   <f:advanced>
-    <f:entry title="URL" field="url">
+    <f:entry title="URL" field="repoUrl">
       <f:textbox />
     </f:entry>
   </f:advanced>

@@ -24,17 +24,15 @@ public class BacklogGitRepositoryBrowser extends GitRepositoryBrowser {
 
 	public final String repoName;
 
-	public final String url;
-
 	@DataBoundConstructor
-	public BacklogGitRepositoryBrowser(String repoName, String url) {
+	public BacklogGitRepositoryBrowser(String repoName, String repoUrl) {
+		super(repoUrl);
 		this.repoName = repoName;
-		this.url = url;
 	}
 
 	@Override
 	public URL getDiffLink(Path path) throws IOException {
-		RepositoryBrowserHelper helper = new RepositoryBrowserHelper(url);
+		RepositoryBrowserHelper helper = new RepositoryBrowserHelper(getRepoUrl());
 
 		if (path.getEditType() != EditType.EDIT) {
 			return null; // no diff if this is not an edit change
@@ -60,7 +58,7 @@ public class BacklogGitRepositoryBrowser extends GitRepositoryBrowser {
 
 	@Override
 	public URL getFileLink(Path path) throws IOException {
-		RepositoryBrowserHelper helper = new RepositoryBrowserHelper(url);
+		RepositoryBrowserHelper helper = new RepositoryBrowserHelper(getRepoUrl());
 
 		if (path.getEditType() == EditType.DELETE) {
 			return null;
@@ -85,7 +83,7 @@ public class BacklogGitRepositoryBrowser extends GitRepositoryBrowser {
 
 	@Override
 	public URL getChangeSetLink(GitChangeSet changeSet) throws IOException {
-		RepositoryBrowserHelper helper = new RepositoryBrowserHelper(url);
+		RepositoryBrowserHelper helper = new RepositoryBrowserHelper(getRepoUrl());
 
 		if (helper.getSpaceURL(changeSet) == null
 				|| helper.getProject(changeSet) == null) {
