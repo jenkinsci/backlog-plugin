@@ -2,7 +2,6 @@ package hudson.plugins.backlog;
 
 import hudson.Extension;
 import hudson.model.Descriptor;
-import hudson.plugins.backlog.api.BacklogApiClient;
 import hudson.security.AbstractPasswordBasedSecurityRealm;
 import hudson.security.GroupDetails;
 import hudson.security.SecurityRealm;
@@ -17,10 +16,21 @@ import org.acegisecurity.userdetails.UsernameNotFoundException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.http.HttpStatus;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 import org.springframework.dao.DataAccessException;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -31,6 +41,9 @@ import java.net.URL;
  * @author ikikko
  */
 public class BacklogSecurityRealm extends AbstractPasswordBasedSecurityRealm {
+
+	/** Endpoint which a user who has an account can access and independents of a project */
+	private static final String LOGIN_ENDPOINT = "ical/myissues.ics";
 
 	private static final Log LOG = LogFactory
 			.getLog(BacklogSecurityRealm.class);
@@ -54,15 +67,32 @@ public class BacklogSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 	@Override
 	protected UserDetails authenticate(String username, String password)
 			throws AuthenticationException {
-
 		try {
-			new BacklogApiClient().login(url, username, password);
-			return new User(username, "", true, true, true, true,
-					new GrantedAuthority[] { AUTHENTICATED_AUTHORITY });
+			if (canLogin(username, password)) {
+                return new User(username, "", true, true, true, true,
+                        new GrantedAuthority[] { AUTHENTICATED_AUTHORITY });
+            } else {
+				throw new BadCredentialsException("Failed to login as " + username);
+			}
+		} catch (IOException e) {
+			throw new BadCredentialsException("Failed to login as " + username, e);
+		}
 
-		} catch (Exception e) {
-			throw new BadCredentialsException("Failed to login as " + username,
-					e);
+	}
+
+	private boolean canLogin(String username, String password) throws IOException {
+		HttpGet httpGet = new HttpGet(url + LOGIN_ENDPOINT);
+
+		CredentialsProvider credsProvider = new BasicCredentialsProvider();
+		credsProvider.setCredentials(
+				new AuthScope(httpGet.getURI().getHost(), httpGet.getURI().getPort()),
+				new UsernamePasswordCredentials(username, password));
+
+		CloseableHttpClient httpClient = HttpClients.custom().setDefaultCredentialsProvider(credsProvider).build();
+		try (CloseableHttpResponse response = httpClient.execute(httpGet)) {
+			EntityUtils.consume(response.getEntity()); // for closing entity ( not needed? )
+
+			return response.getStatusLine().getStatusCode() == HttpStatus.SC_OK;
 		}
 	}
 
