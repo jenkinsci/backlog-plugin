@@ -21,6 +21,9 @@ import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 import org.springframework.dao.DataAccessException;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+
 /**
  * {@link SecurityRealm} implementation that uses Backlog users information for
  * authentication.
@@ -88,8 +91,8 @@ public class BacklogSecurityRealm extends AbstractPasswordBasedSecurityRealm {
 
 		public FormValidation doCheckUrl(@QueryParameter String url) {
 			try {
-				new BacklogApiClient().getEntryPointURL(url);
-			} catch (IllegalArgumentException e) {
+				new URL(url);
+			} catch (MalformedURLException e) {
 				return FormValidation.error(Messages
 						.BacklogSecurityRealm_Url_Error());
 			}
