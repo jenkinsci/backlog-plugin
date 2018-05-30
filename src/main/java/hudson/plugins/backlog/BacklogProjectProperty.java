@@ -6,7 +6,6 @@ import hudson.model.JobProperty;
 import hudson.model.JobPropertyDescriptor;
 import hudson.model.AbstractProject;
 import hudson.model.Job;
-import hudson.plugins.backlog.api.BacklogApiClient;
 import hudson.util.FormValidation;
 import hudson.util.Secret;
 import jenkins.branch.MultiBranchProject;
@@ -21,6 +20,8 @@ import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 
 import javax.annotation.Nonnull;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -118,8 +119,8 @@ public final class BacklogProjectProperty extends
 
 		public FormValidation doCheckUrl(@QueryParameter String url) {
 			try {
-				new BacklogApiClient().getEntryPointURL(url);
-			} catch (IllegalArgumentException e) {
+				new URL(url);
+			} catch (MalformedURLException e) {
 				return FormValidation.error(Messages
 						.BacklogSecurityRealm_Url_Error());
 			}

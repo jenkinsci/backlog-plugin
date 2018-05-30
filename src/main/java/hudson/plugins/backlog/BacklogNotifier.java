@@ -1,31 +1,28 @@
 package hudson.plugins.backlog;
 
+import com.nulabinc.backlog4j.BacklogClient;
+import com.nulabinc.backlog4j.Issue;
+import com.nulabinc.backlog4j.IssueType;
+import com.nulabinc.backlog4j.Project;
+import com.nulabinc.backlog4j.api.option.CreateIssueParams;
 import hudson.Extension;
 import hudson.Launcher;
-import hudson.model.BuildListener;
-import hudson.model.Result;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
-import hudson.plugins.backlog.api.BacklogApiClient;
-import hudson.plugins.backlog.api.entity.Issue;
-import hudson.plugins.backlog.api.entity.Priority;
-import hudson.plugins.backlog.api.entity.Project;
-import hudson.tasks.BuildStepDescriptor;
-import hudson.tasks.BuildStepMonitor;
-import hudson.tasks.MailSender;
-import hudson.tasks.Notifier;
-import hudson.tasks.Publisher;
+import hudson.model.BuildListener;
+import hudson.model.Result;
+import hudson.plugins.backlog.api.v2.BacklogClientFactory;
+import hudson.tasks.*;
+import org.apache.commons.lang.StringUtils;
+import org.kohsuke.stapler.DataBoundConstructor;
 
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
 import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.mail.MessagingException;
-import javax.mail.internet.MimeMessage;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.xmlrpc.XmlRpcException;
-import org.kohsuke.stapler.DataBoundConstructor;
+import static com.nulabinc.backlog4j.Issue.PriorityType;
 
 /**
  * Notifier that creates issue on Backlog.
@@ -106,46 +103,48 @@ public class BacklogNotifier extends Notifier {
 							"'project' is not included in Backlog URL, so creating issue is skipped.");
 			return true;
 		}
-		if (StringUtils.isEmpty(bpp.userId)) {
+		if (StringUtils.isEmpty(bpp.getApiKey())) {
 			listener.getLogger().println(
-					"'userId' is not set, so creating issue is skipped.");
-			return true;
-		}
-		if (StringUtils.isEmpty(bpp.getPassword())) {
-			listener.getLogger().println(
-					"'password' is not set, so creating issue is skipped.");
+					"'apiKey' is not set, so creating issue is skipped.");
 			return true;
 		}
 
 		try {
-			BacklogApiClient client = new BacklogApiClient();
-			client.login(bpp.getSpaceURL(), bpp.userId, bpp.getPassword());
-
-			Project project = client.getProject(bpp.getProject());
-			MimeMessage message = new MessageCreator(build, listener)
-					.getMessage();
-
-			Issue newIssue = new Issue();
-			newIssue.setSummary(message.getSubject());
-			newIssue.setDescription(message.getContent().toString());
-			if (build.getResult() == Result.FAILURE) {
-				newIssue.setPriority(Priority.HIGH);
-			} else if (build.getResult() == Result.UNSTABLE) {
-				newIssue.setPriority(Priority.MIDDLE);
-			}
-			Issue issue = client.createIssue(project.getId(), newIssue);
+			BacklogClient backlog = BacklogClientFactory.getBacklogClient(bpp);
+			Issue issue = backlog.createIssue(buildCreateIssueParams(build, listener, bpp, backlog));
 
 			listener.getLogger().println(
-					"Created issue is [" + issue.getKey() + "] : "
-							+ issue.getUrl());
+					"Created issue is [" + issue.getIssueKey() + "] : "
+							+ bpp.getSpaceURL() + "view/" + issue.getIssueKey());
 
-		} catch (XmlRpcException e) {
-			e.printStackTrace(listener.error(e.getMessage()));
 		} catch (MessagingException e) {
 			e.printStackTrace(listener.error(e.getMessage()));
 		}
 
 		return true;
+	}
+
+	private CreateIssueParams buildCreateIssueParams(AbstractBuild<?, ?> build, BuildListener listener,
+													 BacklogProjectProperty bpp, BacklogClient backlog)
+			throws MessagingException, InterruptedException, IOException {
+		Project project = backlog.getProject(bpp.getProject());
+
+		MimeMessage message = new MessageCreator(build, listener).getMessage();
+
+		IssueType firstIssueType = backlog.getIssueTypes(bpp.getProject()).get(0);
+
+		PriorityType priorityType = PriorityType.Low;
+		if (build.getResult() == Result.FAILURE) {
+            priorityType = PriorityType.High;
+        } else if (build.getResult() == Result.UNSTABLE) {
+            priorityType = PriorityType.Normal;
+        }
+
+		CreateIssueParams createIssueParams =
+				new CreateIssueParams(project.getId(), message.getSubject(), firstIssueType.getId(), priorityType);
+		createIssueParams.description(message.getContent().toString());
+
+		return createIssueParams;
 	}
 
 	public BuildStepMonitor getRequiredMonitorService() {
