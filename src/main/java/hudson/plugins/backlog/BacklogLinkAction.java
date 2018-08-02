@@ -10,25 +10,20 @@ public class BacklogLinkAction implements Action {
 		this.prop = prop;
 	}
 
+	private boolean isEmptyPropUrl() {
+		return prop == null || prop.url == null;
+	}
+
 	public String getIconFileName() {
-		if (prop.url == null) {
-			return null;
-		}
-		return "/plugin/backlog/icon.png";
+		return isEmptyPropUrl() ? null : "/plugin/backlog/icon.png";
 	}
 
 	public String getDisplayName() {
-		if (prop.url == null) {
-			return null;
-		}
-		return "Backlog";
+		return isEmptyPropUrl() ? null : "Backlog";
 	}
 
 	public String getUrlName() {
-		if (prop.url == null) {
-			return null;
-		}
-		return prop.url;
+		return isEmptyPropUrl() ? null : prop.url;
 	}
 
 }
