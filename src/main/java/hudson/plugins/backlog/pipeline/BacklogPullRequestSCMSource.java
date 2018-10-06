@@ -588,6 +588,7 @@ public class BacklogPullRequestSCMSource extends AbstractGitSCMSource {
     private ResponseList<PullRequest> getOpenPullRequests() throws MalformedURLException {
         PullRequestQueryParams params = new PullRequestQueryParams();
         params.statusType(Collections.singletonList(PullRequest.StatusType.Open));
+        params.count(100); // max count
 
         String repoName = new URIish(new URL(remote)).getHumanishName();
         return BacklogClientFactory.getBacklogClient(bpp).getPullRequests(bpp.getProject(), repoName, params);
