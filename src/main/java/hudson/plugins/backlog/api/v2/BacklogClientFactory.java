@@ -25,7 +25,7 @@ public class BacklogClientFactory {
         if (StringUtils.isEmpty(bpp.getProject())) {
             throw new IllegalArgumentException("'project' is not included in Backlog URL. Can't comment a pull request.");
         }
-        if (StringUtils.isEmpty(bpp.getApiKey())) {
+        if (StringUtils.isEmpty(bpp.getApiKey().getPlainText())) {
             throw new IllegalArgumentException("'apiKey' is not set. Can't comment a pull request.");
         }
 
@@ -33,7 +33,7 @@ public class BacklogClientFactory {
             throw new IllegalArgumentException("This project doesn't use Git as SCM. Can't comment a pull request.");
         }
 
-        BacklogConfigure configure = new BacklogPackageConfigure(bpp.getSpaceURL()).apiKey(bpp.getApiKey());
+        BacklogConfigure configure = new BacklogPackageConfigure(bpp.getSpaceURL()).apiKey(bpp.getApiKey().getPlainText());
         return new com.nulabinc.backlog4j.BacklogClientFactory(configure).newClient();
     }
 

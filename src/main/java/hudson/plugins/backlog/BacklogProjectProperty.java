@@ -62,12 +62,12 @@ public final class BacklogProjectProperty extends
 		this.apiKey = Secret.fromString(apiKey);
 	}
 
-	public String getPassword() {
-		return Secret.toString(password);
+	public Secret getPassword() {
+		return password;
 	}
 
-	public String getApiKey() {
-		return Secret.toString(apiKey);
+	public Secret getApiKey() {
+		return apiKey;
 	}
 
 	public String getSpaceURL() {

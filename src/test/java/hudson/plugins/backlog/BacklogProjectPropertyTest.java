@@ -18,7 +18,7 @@ public class BacklogProjectPropertyTest extends HudsonTestCase {
 		bpp = new BacklogProjectProperty(null, null, null, null);
 		assertNull(bpp.url);
 		assertNull(bpp.userId);
-		assertTrue(StringUtils.isEmpty(bpp.getPassword()));
+		assertTrue(StringUtils.isEmpty(bpp.getPassword().getPlainText()));
 	}
 
 	@Test
@@ -27,7 +27,7 @@ public class BacklogProjectPropertyTest extends HudsonTestCase {
 				"https://demo.backlog.jp/projects/DORA", "test", "test", "apiKey");
 		assertEquals("https://demo.backlog.jp/projects/DORA", bpp.url);
 		assertEquals("test", bpp.userId);
-		assertEquals("test", bpp.getPassword());
+		assertEquals("test", bpp.getPassword().getPlainText());
 	}
 
 	@Test
@@ -36,13 +36,13 @@ public class BacklogProjectPropertyTest extends HudsonTestCase {
 				"test", "apiKey");
 		assertEquals("https://demo.backlog.jp/", bpp.url);
 		assertEquals("test", bpp.userId);
-		assertEquals("test", bpp.getPassword());
+		assertEquals("test", bpp.getPassword().getPlainText());
 
 		bpp = new BacklogProjectProperty("https://demo.backlog.jp", "test",
 				"test", "apiKey");
 		assertEquals("https://demo.backlog.jp/", bpp.url);
 		assertEquals("test", bpp.userId);
-		assertEquals("test", bpp.getPassword());
+		assertEquals("test", bpp.getPassword().getPlainText());
 	}
 
 	@Test

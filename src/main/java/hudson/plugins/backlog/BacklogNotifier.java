@@ -103,7 +103,7 @@ public class BacklogNotifier extends Notifier {
 							"'project' is not included in Backlog URL, so creating issue is skipped.");
 			return true;
 		}
-		if (StringUtils.isEmpty(bpp.getApiKey())) {
+		if (StringUtils.isEmpty(bpp.getApiKey().getPlainText())) {
 			listener.getLogger().println(
 					"'apiKey' is not set, so creating issue is skipped.");
 			return true;
