@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## Version 2.6 (Mar 13, 2020)
+
+-   Move docs to GitHub
+
+## Version 2.5 (Mar 11, 2020)
+
+-   Mask credentials transmitted in plain text ( [SECURITY-1510](https://jenkins.io/security/advisory/2020-03-09/#SECURITY-1510) )
+
 ## Version 2.4 (Oct 7, 2018)
 
 -   Scan max count of pull requests ( default 20 → 100 )
