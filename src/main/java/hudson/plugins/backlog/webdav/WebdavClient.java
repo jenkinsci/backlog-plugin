@@ -19,6 +19,12 @@ public class WebdavClient {
 
 	private String removePrefix = "";
 
+	/** for test */
+	WebdavClient() {
+		url = null;
+		sardine = null;
+	}
+
 	public WebdavClient(String url, String username, String password) {
 		this.url = url;
 

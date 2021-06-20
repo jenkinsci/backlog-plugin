@@ -1,32 +1,16 @@
 package hudson.plugins.backlog.webdav;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
 import hudson.FilePath;
-import hudson.plugins.backlog.base.BaseTest;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.Authenticator;
-import java.net.PasswordAuthentication;
-import java.net.URISyntaxException;
-import java.net.URL;
-
-import org.apache.commons.io.IOUtils;
 import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.experimental.runners.Enclosed;
-import org.junit.runner.RunWith;
 
-@RunWith(Enclosed.class)
-public class WebdavClientTest extends BaseTest {
+import java.io.File;
+import java.net.URISyntaxException;
 
-	private static final String FILE_URL = BACKLOG_SPACE_URL + "dav/"
-			+ BACKLOG_PROJECT_KEY + "/";
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+
+public class WebdavClientTest {
 
 	private static final String TEST_PATH = "sardine/";
 
@@ -34,8 +18,7 @@ public class WebdavClientTest extends BaseTest {
 
 	private static final String TEST_TEXT_STRING = "put test text.";
 
-	private static WebdavClient client = new WebdavClient(FILE_URL,
-			BACKLOG_USERNAME, BACKLOG_PASSWORD);
+	private static WebdavClient client = new WebdavClient();
 
 	private static FilePath filePath;
 
@@ -55,109 +38,52 @@ public class WebdavClientTest extends BaseTest {
 		}
 	}
 
-	public static class NoSideEffectsTests {
-
-		@After
-		public void tearDown() {
-			client.setRemovePrefix("");
-		}
-
-		@Test(expected = IllegalArgumentException.class)
-		public void invalid() throws Exception {
-			new WebdavClient(FILE_URL, "fail", "fail");
-		}
-
-		@Test
-		public void getPathFromBase_notRemovePrefix() throws Exception {
-			assertThat(client.getPathFromBase(filePath.getParent(), basePath),
-					is("hudson/plugins/backlog/webdav/"));
-		}
-
-		@Test
-		public void getPathFromBase_removePrefix() throws Exception {
-			client.setRemovePrefix("/hudson/plugins/");
-
-			assertThat(client.getPathFromBase(filePath.getParent(), basePath),
-					is("backlog/webdav/"));
-		}
-
-		@Test(expected = IllegalArgumentException.class)
-		public void getPathFromBase_notStartWithRemovePrefix() throws Exception {
-			FilePath filePath = new FilePath(new File("base/path/file"));
-			FilePath basePath = new FilePath(new File("base/"));
-			client.setRemovePrefix("bad_prefix/");
-
-			client.getPathFromBase(filePath, basePath);
-		}
-
-		@Test
-		public void normalizeDirectory() throws Exception {
-			String expected = "hoge/fuge/";
-
-			assertThat(client.normalizeDirectory(""), is(""));
-
-			assertThat(client.normalizeDirectory("/hoge/fuge/"), is(expected));
-
-			assertThat(client.normalizeDirectory("/hoge/fuge"), is(expected));
-
-			assertThat(client.normalizeDirectory("hoge/fuge/"), is(expected));
-
-			assertThat(client.normalizeDirectory("hoge/fuge"), is(expected));
-		}
-
+	@After
+	public void tearDown() {
+		client.setRemovePrefix("");
 	}
 
-	@Ignore("更新系APIは、普段のユニットテストでは実行しない")
-	public static class SideEffectsTests {
+	@Test(expected = IllegalArgumentException.class)
+	public void invalid() throws Exception {
+		new WebdavClient("dummy", "fail", "fail");
+	}
 
-		static {
-			Authenticator.setDefault(new Authenticator() {
-				@Override
-				protected PasswordAuthentication getPasswordAuthentication() {
-					return new PasswordAuthentication(BACKLOG_USERNAME,
-							BACKLOG_PASSWORD.toCharArray());
-				}
-			});
-		}
+	@Test
+	public void getPathFromBase_notRemovePrefix() throws Exception {
+		assertThat(client.getPathFromBase(filePath.getParent(), basePath),
+				is("hudson/plugins/backlog/webdav/"));
+	}
 
-		@Before
-		public void setUp() throws Exception {
-			client.createDirectory(TEST_PATH);
-		}
+	@Test
+	public void getPathFromBase_removePrefix() throws Exception {
+		client.setRemovePrefix("/hudson/plugins/");
 
-		@After
-		public void tearDown() throws Exception {
-			client.delete(TEST_PATH);
-		}
+		assertThat(client.getPathFromBase(filePath.getParent(), basePath),
+				is("backlog/webdav/"));
+	}
 
-		@Test
-		public void put() throws Exception {
-			client.put(filePath, TEST_PATH);
+	@Test(expected = IllegalArgumentException.class)
+	public void getPathFromBase_notStartWithRemovePrefix() throws Exception {
+		FilePath filePath = new FilePath(new File("base/path/file"));
+		FilePath basePath = new FilePath(new File("base/"));
+		client.setRemovePrefix("bad_prefix/");
 
-			assertPutText(FILE_URL + TEST_PATH + TEST_TEXT_FILE);
-		}
+		client.getPathFromBase(filePath, basePath);
+	}
 
-		@Test
-		public void putWithParent() throws Exception {
-			client.putWithParent(filePath, TEST_PATH, basePath);
+	@Test
+	public void normalizeDirectory() throws Exception {
+		String expected = "hoge/fuge/";
 
-			assertPutText(FILE_URL + TEST_PATH
-					+ client.getPathFromBase(filePath, basePath));
-		}
+		assertThat(client.normalizeDirectory(""), is(""));
 
-		private static void assertPutText(String url) throws Exception {
-			BufferedReader reader = null;
-			try {
-				InputStream in = new URL(url).openStream();
-				reader = new BufferedReader(new InputStreamReader(in));
+		assertThat(client.normalizeDirectory("/hoge/fuge/"), is(expected));
 
-				assertThat(reader.readLine(), is(TEST_TEXT_STRING));
-			} finally {
-				IOUtils.closeQuietly(reader);
-			}
+		assertThat(client.normalizeDirectory("/hoge/fuge"), is(expected));
 
-		}
+		assertThat(client.normalizeDirectory("hoge/fuge/"), is(expected));
 
+		assertThat(client.normalizeDirectory("hoge/fuge"), is(expected));
 	}
 
 }
