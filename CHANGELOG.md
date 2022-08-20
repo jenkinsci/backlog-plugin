@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## Version 2.7 (Aug 21, 2022)
+
+-   Bump up some dependencies
+
 ## Version 2.6 (Mar 13, 2020)
 
 -   Move docs to GitHub
